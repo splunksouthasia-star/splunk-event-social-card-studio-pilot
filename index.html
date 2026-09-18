@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#04070B" />
+    <title>Splunk Event Social Card Studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Splunk Event Social Card Studio">
+        <img src="assets/splunk-corporate-white.png" alt="Splunk, a Cisco company" />
+      </a>
+      <p>Event social card studio</p>
+    </header>
+
+    <main id="top" class="workspace">
+      <section class="intro">
+        <p class="eyebrow">Self-service event creative</p>
+        <h1>Make your event card.</h1>
+        <p class="intro-copy">
+          Choose an event, add your photo, and download a LinkedIn-ready card. Your photo stays in this browser.
+        </p>
+      </section>
+
+      <section class="studio" aria-label="Event social card generator">
+        <form id="card-form" class="control-panel">
+          <section class="form-section">
+            <div class="section-heading">
+              <span>01</span>
+              <h2>Event</h2>
+            </div>
+
+            <label for="event-owner">Event type</label>
+            <select id="event-owner" name="event-owner">
+              <option value="splunk">Splunk event</option>
+              <option value="third-party">Third-party event</option>
+            </select>
+
+            <label for="event-title">Event name</label>
+            <input id="event-title" name="event-title" type="text" value="Splunk Experience Day" maxlength="42" />
+
+            <div class="two-column">
+              <div>
+                <label for="event-location">City and year</label>
+                <input id="event-location" name="event-location" type="text" value="Delhi 2026" maxlength="26" />
+              </div>
+              <div>
+                <label for="event-date">Date</label>
+                <input id="event-date" name="event-date" type="text" value="Friday, September 25, 2026" maxlength="38" />
+              </div>
+            </div>
+
+            <fieldset class="background-choice">
+              <legend>Background</legend>
+              <label class="radio-option">
+                <input type="radio" name="background-mode" value="generic" checked />
+                <span>Use generic Splunk master</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="background-mode" value="upload" />
+                <span>Upload approved event creative</span>
+              </label>
+            </fieldset>
+
+            <div id="background-upload-wrap" class="upload-wrap is-hidden">
+              <label for="background-upload">Approved dark event background</label>
+              <input id="background-upload" name="background-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+              <p class="field-note">Use a square background with an open text and portrait area. Finished artwork with existing copy is not supported.</p>
+              <label class="check-option" for="readability-overlay">
+                <input id="readability-overlay" name="readability-overlay" type="checkbox" checked />
+                <span>Use the dark readability overlay</span>
+              </label>
+            </div>
+
+            <p id="third-party-note" class="field-note is-hidden">
+              Third-party events need approved co-branding and a background with a clear area for the Splunk lockup.
+            </p>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <span>02</span>
+              <h2>Your card</h2>
+            </div>
+
+            <label for="card-intent">Card message</label>
+            <select id="card-intent" name="card-intent">
+              <option value="speaking">I am speaking at</option>
+              <option value="attending">I am attending</option>
+              <option value="meet">Meet me at</option>
+            </select>
+
+            <label for="person-name">Your name</label>
+            <input id="person-name" name="person-name" type="text" value="Your name" maxlength="32" />
+
+            <label for="person-role">Your title</label>
+            <input id="person-role" name="person-role" type="text" value="Your title, Splunk" maxlength="58" />
+
+            <label for="photo-upload">Profile photo</label>
+            <input id="photo-upload" name="photo-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+
+            <div id="photo-controls" class="photo-controls is-hidden">
+              <label for="photo-zoom">Photo zoom</label>
+              <input id="photo-zoom" type="range" min="1" max="2.6" step="0.01" value="1" />
+              <label for="photo-horizontal">Move photo horizontally</label>
+              <input id="photo-horizontal" type="range" min="-1" max="1" step="0.01" value="0" />
+              <label for="photo-vertical">Move photo vertically</label>
+              <input id="photo-vertical" type="range" min="-1" max="1" step="0.01" value="0" />
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <span>03</span>
+              <h2>Caption</h2>
+            </div>
+
+            <label for="registration-link">Registration link <span class="optional">optional</span></label>
+            <input id="registration-link" name="registration-link" type="url" placeholder="https://" />
+
+            <label for="caption">Suggested LinkedIn caption</label>
+            <textarea id="caption" name="caption" rows="8"></textarea>
+            <button id="reset-caption" class="text-button" type="button">Reset suggested caption</button>
+          </section>
+
+          <section class="actions">
+            <button id="download-card" class="primary-button" type="button">Download card</button>
+            <button id="copy-caption" class="secondary-button" type="button">Copy caption</button>
+            <button id="open-linkedin" class="secondary-button" type="button">Copy caption and open LinkedIn</button>
+            <p id="action-status" class="action-status" aria-live="polite"></p>
+          </section>
+        </form>
+
+        <section class="preview-panel" aria-label="Live card preview">
+          <div class="preview-heading">
+            <div>
+              <p class="eyebrow">Live preview</p>
+              <h2>1200 × 1200</h2>
+            </div>
+            <p class="privacy-note">Photo stays on your device</p>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="card-canvas" width="1200" height="1200" aria-label="Generated event social card preview"></canvas>
+          </div>
+          <p class="preview-note">The preview exports as a 1200 × 1200 PNG. LinkedIn posting remains user-controlled.</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
