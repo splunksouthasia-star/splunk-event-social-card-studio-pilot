@@ -38,7 +38,8 @@ const openLinkedInButton = document.querySelector("#open-linkedin");
 
 const state = {
   genericBackground: null,
-  signalTrails: null,
+  concentricSquare: null,
+  concentricLandscape: null,
   customBackground: null,
   logo: null,
   photo: null,
@@ -162,12 +163,6 @@ function loadImage(source) {
     image.onerror = reject;
     image.src = source;
   });
-}
-
-async function loadSignalTrails() {
-  if (state.signalTrails) return state.signalTrails;
-  state.signalTrails = await loadImage("splunk-signal-trails-circles-web.png");
-  return state.signalTrails;
 }
 
 function currentBackgroundMode() {
@@ -430,38 +425,32 @@ function drawLogo() {
   ctx.drawImage(state.logo, x + width - drawWidth, y, drawWidth, drawHeight);
 }
 
-function drawSignalTrailsBackground() {
-  const { width, height } = currentFormat();
-  const unit = cardScale();
-  ctx.fillStyle = "#0B1118";
-  ctx.fillRect(0, 0, width, height);
+function hasMatchingConcentricMaster() {
+  return ["square", "landscape"].includes(fields.socialFormat.value);
+}
 
-  const blueGlow = ctx.createRadialGradient(180 * unit, 88 * unit, 0, 180 * unit, 88 * unit, Math.max(width, height) * 0.72);
-  blueGlow.addColorStop(0, "rgba(10,96,255,0.26)");
-  blueGlow.addColorStop(1, "rgba(10,96,255,0)");
-  ctx.fillStyle = blueGlow;
-  ctx.fillRect(0, 0, width, height);
+function currentConcentricMaster() {
+  if (fields.socialFormat.value === "landscape") return state.concentricLandscape;
+  if (fields.socialFormat.value === "square") return state.concentricSquare;
+  return null;
+}
 
-  const signalGlow = ctx.createLinearGradient(width * 0.3, height, width, height);
-  signalGlow.addColorStop(0, "rgba(255,0,127,0)");
-  signalGlow.addColorStop(0.48, "rgba(255,0,127,0.76)");
-  signalGlow.addColorStop(1, "rgba(255,144,0,0.84)");
-  ctx.fillStyle = signalGlow;
-  ctx.fillRect(0, height * 0.48, width, height * 0.52);
-
-  if (state.signalTrails) {
-    ctx.save();
-    ctx.globalAlpha = 0.46;
-    drawImageCover(state.signalTrails, 0, 0, width, height);
-    ctx.restore();
-  }
+function ensureMasterSupported() {
+  if (currentBackgroundMode() !== "concentric-circles" || hasMatchingConcentricMaster()) return;
+  form.querySelector('input[name="background-mode"][value="generic"]').checked = true;
+  setStatus("The supplied concentric-circle masters are available in Square and Landscape. Switched to Splunk glow and grid for this placement.");
 }
 
 function drawBackground() {
   const mode = currentBackgroundMode();
   const { width, height } = currentFormat();
-  if (mode === "signal-trails") {
-    drawSignalTrailsBackground();
+  if (mode === "concentric-circles") {
+    const master = currentConcentricMaster();
+    if (master) drawImageCover(master, 0, 0, width, height);
+    else {
+      ctx.fillStyle = "#0B1118";
+      ctx.fillRect(0, 0, width, height);
+    }
     return;
   }
 
@@ -488,7 +477,7 @@ function renderCard() {
   }
   ctx.clearRect(0, 0, width, height);
   drawBackground();
-  drawLogo();
+  if (!(currentBackgroundMode() === "concentric-circles" && hasMatchingConcentricMaster())) drawLogo();
 
   drawText(intentCopy(fields.intent.value), { ...layout.eyebrow, weight: 650, color: "#FFFFFF" });
   drawText(fields.title.value.trim() || "Event name", { ...layout.title, weight: 680, gradient: true });
@@ -600,18 +589,17 @@ function bindEvents() {
   form.addEventListener("change", (event) => {
     if (event.target.name === "background-mode") {
       toggleBackgroundUpload();
-      if (currentBackgroundMode() === "signal-trails") {
-        loadSignalTrails().then(renderCard).catch(() => setStatus("Signal Trails could not be loaded. Please choose another background."));
-      }
     }
     if (event.target === fields.eventPreset) toggleCustomEventTitle();
     if (event.target === fields.owner) toggleThirdPartyNote();
     if (event.target === fields.platform) {
       updateSocialFormats();
+      ensureMasterSupported();
       renderCard();
     }
     if (event.target === fields.socialFormat) {
       updatePreviewMeta();
+      ensureMasterSupported();
       renderCard();
     }
     if (event.target === fields.language) {
@@ -640,16 +628,19 @@ function bindEvents() {
 
 async function start() {
   try {
-    const [background, logo] = await Promise.all([
+    const [background, logo, concentricSquare, concentricLandscape] = await Promise.all([
       loadImage("assets/generic-event-background.png"),
       loadImage("assets/splunk-corporate-white.png"),
+      loadImage("assets/concentric-circles-square.png"),
+      loadImage("assets/concentric-circles-landscape.png"),
       document.fonts.ready,
     ]);
     state.genericBackground = background;
     state.logo = logo;
+    state.concentricSquare = concentricSquare;
+    state.concentricLandscape = concentricLandscape;
     updateSocialFormats();
     loadCardLanguageFont().catch(() => {}).finally(renderCard);
-    loadSignalTrails().then(renderCard).catch(() => {});
     updateCaption(true);
     renderCard();
   } catch {
