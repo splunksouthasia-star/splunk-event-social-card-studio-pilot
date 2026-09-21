@@ -521,7 +521,7 @@ async function start() {
     const [background, logo, signalTrails] = await Promise.all([
       loadImage("assets/generic-event-background.png"),
       loadImage("assets/splunk-corporate-white.png"),
-      loadImage("assets/splunk-signal-trails-circles.svg"),
+      loadImage("splunk-signal-trails-circles.svg"),
       document.fonts.ready,
     ]);
     state.genericBackground = background;
