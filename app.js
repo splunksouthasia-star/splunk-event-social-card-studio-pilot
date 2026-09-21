@@ -231,10 +231,24 @@ function titleCaseLocation(value) {
   return value.replace(/\s+\d{4}$/, "").trim();
 }
 
+function formattedDate() {
+  const value = fields.date.value;
+  if (!value) return "";
+
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  return new Intl.DateTimeFormat(currentLanguage().locale, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
 function suggestedCaption() {
   const title = fields.title.value.trim() || "this event";
   const place = titleCaseLocation(fields.location.value.trim());
-  const date = fields.date.value.trim();
+  const date = formattedDate();
   const link = fields.registration.value.trim();
   const lines = [`${captionLead(fields.intent.value)} ${title}${place ? ` in ${place}` : ""}.`];
   if (date) lines.push(`Join me on ${date}.`);
@@ -481,8 +495,8 @@ function renderCard() {
 
   drawText(intentCopy(fields.intent.value), { ...layout.eyebrow, weight: 650, color: "#FFFFFF" });
   drawText(fields.title.value.trim() || "Event name", { ...layout.title, weight: 680, gradient: true });
-  drawText(fields.location.value.trim() || "City 2026", { ...layout.location, weight: 650, color: "#FFFFFF" });
-  drawText(fields.date.value.trim(), { ...layout.date, weight: 450, color: "#FFFFFF" });
+  drawText(fields.location.value.trim(), { ...layout.location, weight: 650, color: "#FFFFFF" });
+  drawText(formattedDate(), { ...layout.date, weight: 450, color: "#FFFFFF" });
   drawProfile();
   drawPortrait();
 }
