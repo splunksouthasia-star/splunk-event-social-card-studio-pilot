@@ -631,8 +631,8 @@ async function start() {
     const [background, logo, concentricSquare, concentricLandscape] = await Promise.all([
       loadImage("assets/generic-event-background.png"),
       loadImage("assets/splunk-corporate-white.png"),
-      loadImage("assets/concentric-circles-square.png"),
-      loadImage("assets/concentric-circles-landscape.png"),
+      loadImage("concentric-circles-square.png"),
+      loadImage("concentric-circles-landscape.png"),
       document.fonts.ready,
     ]);
     state.genericBackground = background;
