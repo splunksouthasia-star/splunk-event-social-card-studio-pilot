@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#04070B" />
     <title>Splunk Event Social Card Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -19,9 +22,7 @@
       <section class="intro">
         <p class="eyebrow">Self-service event creative</p>
         <h1>Make your event card.</h1>
-        <p class="intro-copy">
-          Choose an event, add your photo, and download a LinkedIn-ready card. Your photo stays in this browser.
-        </p>
+        <p class="intro-copy">Choose an event, add your photo, and download a LinkedIn-ready card.</p>
       </section>
 
       <section class="studio" aria-label="Event social card generator">
@@ -38,8 +39,17 @@
               <option value="third-party">Third-party event</option>
             </select>
 
-            <label for="event-title">Event name</label>
-            <input id="event-title" name="event-title" type="text" value="Splunk Experience Day" maxlength="42" />
+            <label for="event-preset">Event name</label>
+            <select id="event-preset" name="event-preset">
+              <option value="Splunk Experience Day" selected>Splunk Experience Day</option>
+              <option value=".conf Unpacked">.conf Unpacked</option>
+              <option value="Splunk GO">Splunk GO</option>
+              <option value="custom">Custom event name</option>
+            </select>
+            <div id="custom-event-title-wrap" class="is-hidden">
+              <label for="event-title">Custom event name</label>
+              <input id="event-title" name="event-title" type="text" value="Splunk Experience Day" maxlength="48" />
+            </div>
 
             <div class="two-column">
               <div>
@@ -53,10 +63,14 @@
             </div>
 
             <fieldset class="background-choice">
-              <legend>Background</legend>
+              <legend>Card background</legend>
               <label class="radio-option">
                 <input type="radio" name="background-mode" value="generic" checked />
-                <span>Use generic Splunk master</span>
+                <span>Splunk glow and grid</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="background-mode" value="signal-trails" />
+                <span>Splunk Signal Trails</span>
               </label>
               <label class="radio-option">
                 <input type="radio" name="background-mode" value="upload" />
@@ -92,22 +106,41 @@
               <option value="meet">Meet me at</option>
             </select>
 
+            <label for="card-language">Card language</label>
+            <select id="card-language" name="card-language">
+              <option value="en" selected>English</option>
+              <option value="ko">한국어</option>
+              <option value="zh-Hans">简体中文</option>
+              <option value="zh-Hant">繁體中文</option>
+              <option value="th">ไทย</option>
+              <option value="ja">日本語</option>
+            </select>
+            <p class="field-note">This changes the fixed card message. Enter your event and profile details in the language you need.</p>
+
             <label for="person-name">Your name</label>
             <input id="person-name" name="person-name" type="text" value="Your name" maxlength="32" />
 
             <label for="person-role">Your title</label>
-            <input id="person-role" name="person-role" type="text" value="Your title, Splunk" maxlength="58" />
+            <input id="person-role" name="person-role" type="text" value="Your title" maxlength="48" />
+
+            <label for="person-region">Region or team <span class="optional">optional</span></label>
+            <input id="person-region" name="person-region" type="text" maxlength="38" />
+
+            <label for="person-organisation">Organisation</label>
+            <input id="person-organisation" name="person-organisation" type="text" value="Splunk" maxlength="32" />
 
             <label for="photo-upload">Profile photo</label>
             <input id="photo-upload" name="photo-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+            <p class="field-note">Recommended: a clear, front-facing square image at least 800 × 800 px. Portrait photos work too.</p>
 
             <div id="photo-controls" class="photo-controls is-hidden">
               <label for="photo-zoom">Photo zoom</label>
               <input id="photo-zoom" type="range" min="1" max="2.6" step="0.01" value="1" />
-              <label for="photo-horizontal">Move photo horizontally</label>
+              <label for="photo-horizontal">Move photo left or right</label>
               <input id="photo-horizontal" type="range" min="-1" max="1" step="0.01" value="0" />
-              <label for="photo-vertical">Move photo vertically</label>
+              <label for="photo-vertical">Move photo up or down</label>
               <input id="photo-vertical" type="range" min="-1" max="1" step="0.01" value="0" />
+              <p id="photo-crop-note" class="field-note">Tip: increase Photo zoom to give yourself more room to reposition the image.</p>
             </div>
           </section>
 
@@ -139,12 +172,11 @@
               <p class="eyebrow">Live preview</p>
               <h2>1200 × 1200</h2>
             </div>
-            <p class="privacy-note">Photo stays on your device</p>
           </div>
           <div class="canvas-wrap">
             <canvas id="card-canvas" width="1200" height="1200" aria-label="Generated event social card preview"></canvas>
           </div>
-          <p class="preview-note">The preview exports as a 1200 × 1200 PNG. LinkedIn posting remains user-controlled.</p>
+          <p class="preview-note">Downloads as a 1200 × 1200 PNG.</p>
         </section>
       </section>
     </main>

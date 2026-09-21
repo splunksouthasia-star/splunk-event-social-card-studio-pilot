@@ -4,12 +4,16 @@ const ctx = canvas.getContext("2d");
 const form = document.querySelector("#card-form");
 const fields = {
   owner: document.querySelector("#event-owner"),
+  eventPreset: document.querySelector("#event-preset"),
   title: document.querySelector("#event-title"),
   location: document.querySelector("#event-location"),
   date: document.querySelector("#event-date"),
   intent: document.querySelector("#card-intent"),
+  language: document.querySelector("#card-language"),
   name: document.querySelector("#person-name"),
   role: document.querySelector("#person-role"),
+  region: document.querySelector("#person-region"),
+  organisation: document.querySelector("#person-organisation"),
   photo: document.querySelector("#photo-upload"),
   background: document.querySelector("#background-upload"),
   overlay: document.querySelector("#readability-overlay"),
@@ -21,12 +25,15 @@ const fields = {
 };
 
 const backgroundUploadWrap = document.querySelector("#background-upload-wrap");
+const customEventTitleWrap = document.querySelector("#custom-event-title-wrap");
 const thirdPartyNote = document.querySelector("#third-party-note");
 const photoControls = document.querySelector("#photo-controls");
+const photoCropNote = document.querySelector("#photo-crop-note");
 const actionStatus = document.querySelector("#action-status");
 
 const state = {
   genericBackground: null,
+  signalTrails: null,
   customBackground: null,
   logo: null,
   photo: null,
@@ -44,10 +51,48 @@ const layout = {
   title: { x: 72 * s, y: 246 * s, maxWidth: 965 * s, font: 74 * s },
   location: { x: 72 * s, y: 334 * s, maxWidth: 600 * s, font: 80 * s },
   date: { x: 78 * s, y: 448 * s, maxWidth: 650 * s, font: 40 * s },
-  name: { x: 188 * s, y: 636 * s, maxWidth: 390 * s, font: 37 * s },
-  role: { x: 188 * s, y: 690 * s, maxWidth: 380 * s, font: 31 * s },
+  profile: { x: 188 * s, y: 636 * s, maxWidth: 350 * s },
   portrait: { x: 560 * s, y: 468 * s, size: 445 * s },
   logo: { x: 824 * s, y: 20 * s, width: 220 * s, height: 119 * s },
+};
+
+const languagePack = {
+  en: {
+    locale: "en",
+    fontFamily: 'Inter, Arial, sans-serif',
+    fontName: "Inter",
+    copy: { speaking: "I am speaking at", attending: "I am attending", meet: "Meet me at" },
+  },
+  ko: {
+    locale: "ko",
+    fontFamily: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif',
+    fontName: "Noto Sans KR",
+    copy: { speaking: "발표자로 참여합니다", attending: "행사에 참석합니다", meet: "행사에서 만나요" },
+  },
+  "zh-Hans": {
+    locale: "zh-CN",
+    fontFamily: '"Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif',
+    fontName: "Noto Sans SC",
+    copy: { speaking: "我将在本次活动演讲", attending: "我将参加本次活动", meet: "活动现场见" },
+  },
+  "zh-Hant": {
+    locale: "zh-TW",
+    fontFamily: '"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif',
+    fontName: "Noto Sans TC",
+    copy: { speaking: "我將在本次活動演講", attending: "我將參加本次活動", meet: "活動現場見" },
+  },
+  th: {
+    locale: "th",
+    fontFamily: '"Noto Sans Thai", "Thonburi", Tahoma, Arial, sans-serif',
+    fontName: "Noto Sans Thai",
+    copy: { speaking: "ร่วมเป็นวิทยากร", attending: "เข้าร่วมงาน", meet: "พบกันที่งาน" },
+  },
+  ja: {
+    locale: "ja",
+    fontFamily: '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", Arial, sans-serif',
+    fontName: "Noto Sans JP",
+    copy: { speaking: "登壇します", attending: "参加します", meet: "会場で会いましょう" },
+  },
 };
 
 function loadImage(source) {
@@ -63,12 +108,23 @@ function currentBackgroundMode() {
   return form.querySelector('input[name="background-mode"]:checked').value;
 }
 
+function currentLanguage() {
+  return languagePack[fields.language.value] || languagePack.en;
+}
+
+function cardFont(weight, fontSize) {
+  return `${weight} ${fontSize}px ${currentLanguage().fontFamily}`;
+}
+
+async function loadCardLanguageFont() {
+  const language = currentLanguage();
+  document.documentElement.lang = language.locale;
+  if (!document.fonts?.load) return;
+  await Promise.all([400, 500, 600, 700].map((weight) => document.fonts.load(`${weight} 72px "${language.fontName}"`)));
+}
+
 function intentCopy(intent) {
-  return {
-    speaking: "I am speaking at",
-    attending: "I am attending",
-    meet: "Meet me at",
-  }[intent];
+  return currentLanguage().copy[intent];
 }
 
 function captionLead(intent) {
@@ -123,7 +179,7 @@ function drawImageCover(image, x, y, width, height) {
 function fitFont(text, maxWidth, startingSize, weight = 650, minSize = 40) {
   let fontSize = startingSize;
   while (fontSize > minSize) {
-    ctx.font = `${weight} ${fontSize}px Inter, Arial, sans-serif`;
+    ctx.font = cardFont(weight, fontSize);
     if (ctx.measureText(text).width <= maxWidth) break;
     fontSize -= 1;
   }
@@ -133,7 +189,7 @@ function fitFont(text, maxWidth, startingSize, weight = 650, minSize = 40) {
 function drawText(text, { x, y, maxWidth, font, weight = 500, color = "#FFFFFF", gradient = false }) {
   const size = fitFont(text, maxWidth, font, weight);
   ctx.save();
-  ctx.font = `${weight} ${size}px Inter, Arial, sans-serif`;
+  ctx.font = cardFont(weight, size);
   ctx.textBaseline = "top";
   if (gradient) {
     const titleGradient = ctx.createLinearGradient(x, y, x + Math.min(maxWidth, ctx.measureText(text).width), y);
@@ -149,36 +205,72 @@ function drawText(text, { x, y, maxWidth, font, weight = 500, color = "#FFFFFF",
   return size;
 }
 
-function wrapText(text, maxWidth, fontSize, weight = 500) {
+function textSegments(text) {
+  const value = text.trim();
+  if (!value) return [];
+  const locale = currentLanguage().locale;
+  const characterBased = ["zh-CN", "zh-TW", "th", "ja"].includes(locale);
+  if (typeof Intl.Segmenter === "function") {
+    const segmenter = new Intl.Segmenter(locale, { granularity: characterBased ? "grapheme" : "word" });
+    return Array.from(segmenter.segment(value), ({ segment }) => segment);
+  }
+  return characterBased ? Array.from(value) : value.split(/(\s+)/);
+}
+
+function wrapText(text, maxWidth, fontSize, weight = 500, lineLimit = 2) {
   ctx.save();
-  ctx.font = `${weight} ${fontSize}px Inter, Arial, sans-serif`;
-  const words = text.trim().split(/\s+/).filter(Boolean);
+  ctx.font = cardFont(weight, fontSize);
+  const segments = textSegments(text);
   const lines = [];
   let line = "";
-  for (const word of words) {
-    const candidate = line ? `${line} ${word}` : word;
-    if (ctx.measureText(candidate).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
+  for (const segment of segments) {
+    const candidate = `${line}${segment}`;
+    if (ctx.measureText(candidate.trim()).width > maxWidth && line.trim()) {
+      lines.push(line.trim());
+      line = segment.trimStart();
     } else {
       line = candidate;
     }
   }
-  if (line) lines.push(line);
+  if (line.trim()) lines.push(line.trim());
   ctx.restore();
-  return lines.slice(0, 2);
+  return lines.slice(0, lineLimit);
 }
 
-function drawRole(text) {
-  const { x, y, maxWidth, font } = layout.role;
-  const size = fitFont(text, maxWidth, font, 460, 23 * s);
-  const lines = wrapText(text, maxWidth, size, 460);
+function fitFontForLines(text, maxWidth, startingSize, weight = 500, minSize = 23 * s, lineLimit = 2) {
+  let fontSize = startingSize;
+  while (fontSize > minSize) {
+    if (wrapText(text, maxWidth, fontSize, weight, lineLimit + 1).length <= lineLimit) break;
+    fontSize -= 1;
+  }
+  return fontSize;
+}
+
+function drawProfileLine(text, y, font, weight = 460, minSize = 23 * s) {
+  if (!text) return y;
+  const { x, maxWidth } = layout.profile;
+  const size = fitFontForLines(text, maxWidth, font, weight, minSize);
+  const lines = wrapText(text, maxWidth, size, weight);
   ctx.save();
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = `460 ${size}px Inter, Arial, sans-serif`;
+  ctx.font = cardFont(weight, size);
   ctx.textBaseline = "top";
   lines.forEach((line, index) => ctx.fillText(line, x, y + index * size * 1.15, maxWidth));
   ctx.restore();
+  return y + Math.max(1, lines.length) * size * 1.15;
+}
+
+function drawProfile() {
+  const name = fields.name.value.trim() || "Your name";
+  const role = fields.role.value.trim() || "Your title";
+  const region = fields.region.value.trim();
+  const organisation = fields.organisation.value.trim();
+  let y = layout.profile.y;
+
+  y = drawProfileLine(name, y, 37 * s, 680, 24 * s);
+  const titleAndRegion = [role, region].filter(Boolean).join(", ");
+  y = drawProfileLine(titleAndRegion, y + 5 * s, 31 * s, 460, 22 * s);
+  drawProfileLine(organisation, y + 3 * s, 27 * s, 460, 21 * s);
 }
 
 function drawPortrait() {
@@ -217,7 +309,7 @@ function drawPortrait() {
     ctx.fillStyle = "#111922";
     ctx.fillRect(x, y, size, size);
     ctx.fillStyle = "#DCE4EA";
-    ctx.font = `560 ${25 * s}px Inter, Arial, sans-serif`;
+    ctx.font = cardFont(560, 25 * s);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("Upload", centerX, centerY - 16 * s);
@@ -239,13 +331,44 @@ function drawLogo() {
   ctx.drawImage(state.logo, x + width - drawWidth, y, drawWidth, drawHeight);
 }
 
-function drawBackground() {
+function drawSignalTrailsBackground() {
   ctx.fillStyle = "#0B1118";
   ctx.fillRect(0, 0, CARD, CARD);
-  const background = currentBackgroundMode() === "upload" && state.customBackground ? state.customBackground : state.genericBackground;
+
+  const blueGlow = ctx.createRadialGradient(180 * s, 88 * s, 0, 180 * s, 88 * s, 760 * s);
+  blueGlow.addColorStop(0, "rgba(10,96,255,0.26)");
+  blueGlow.addColorStop(1, "rgba(10,96,255,0)");
+  ctx.fillStyle = blueGlow;
+  ctx.fillRect(0, 0, CARD, CARD);
+
+  const signalGlow = ctx.createLinearGradient(330 * s, CARD, CARD, CARD);
+  signalGlow.addColorStop(0, "rgba(255,0,127,0)");
+  signalGlow.addColorStop(0.48, "rgba(255,0,127,0.76)");
+  signalGlow.addColorStop(1, "rgba(255,144,0,0.84)");
+  ctx.fillStyle = signalGlow;
+  ctx.fillRect(0, 620 * s, CARD, 460 * s);
+
+  if (state.signalTrails) {
+    ctx.save();
+    ctx.globalAlpha = 0.46;
+    drawImageCover(state.signalTrails, 0, 0, CARD, CARD);
+    ctx.restore();
+  }
+}
+
+function drawBackground() {
+  const mode = currentBackgroundMode();
+  if (mode === "signal-trails") {
+    drawSignalTrailsBackground();
+    return;
+  }
+
+  ctx.fillStyle = "#0B1118";
+  ctx.fillRect(0, 0, CARD, CARD);
+  const background = mode === "upload" && state.customBackground ? state.customBackground : state.genericBackground;
   if (background) drawImageCover(background, 0, 0, CARD, CARD);
 
-  if (currentBackgroundMode() === "upload" && fields.overlay.checked) {
+  if (mode === "upload" && fields.overlay.checked) {
     const overlay = ctx.createLinearGradient(0, 0, CARD, 0);
     overlay.addColorStop(0, "rgba(4,7,11,0.74)");
     overlay.addColorStop(0.56, "rgba(4,7,11,0.26)");
@@ -264,8 +387,7 @@ function renderCard() {
   drawText(fields.title.value.trim() || "Event name", { ...layout.title, weight: 680, gradient: true });
   drawText(fields.location.value.trim() || "City 2026", { ...layout.location, weight: 650, color: "#FFFFFF" });
   drawText(fields.date.value.trim(), { ...layout.date, weight: 450, color: "#FFFFFF" });
-  drawText(fields.name.value.trim() || "Your name", { ...layout.name, weight: 680, color: "#FFFFFF" });
-  drawRole(fields.role.value.trim() || "Your title, Splunk");
+  drawProfile();
   drawPortrait();
 }
 
@@ -279,7 +401,21 @@ async function handleImageUpload(input, target) {
   const url = URL.createObjectURL(file);
   try {
     state[target] = await loadImage(url);
-    setStatus(`${target === "photo" ? "Photo" : "Background"} ready. It remains in this browser.`);
+    if (target === "photo") {
+      const isNarrowPortrait = state.photo.height > state.photo.width;
+      state.photoZoom = isNarrowPortrait ? 1.16 : 1;
+      state.photoHorizontal = 0;
+      state.photoVertical = 0;
+      fields.photoZoom.value = String(state.photoZoom);
+      fields.photoHorizontal.value = "0";
+      fields.photoVertical.value = "0";
+      photoCropNote.textContent = isNarrowPortrait
+        ? "We added a little zoom so you can move this portrait left or right. Increase Photo zoom for more control."
+        : "Tip: increase Photo zoom to give yourself more room to reposition the image.";
+      setStatus("Photo ready.");
+    } else {
+      setStatus("Event background ready.");
+    }
     renderCard();
   } catch {
     setStatus("That image could not be opened. Please choose another file.");
@@ -301,11 +437,21 @@ async function copyCaption() {
   }
 }
 
-function downloadCard() {
-  const title = (fields.title.value || "event-card").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  const name = (fields.name.value || "splunk").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+async function downloadCard() {
+  await loadCardLanguageFont().catch(() => {});
+  renderCard();
+  const filePart = (value, fallback) => {
+    const cleaned = (value || "")
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-|-$/g, "");
+    return cleaned || fallback;
+  };
+  const title = filePart(fields.title.value, "event-card");
+  const name = filePart(fields.name.value, "splunk");
   const link = document.createElement("a");
-  link.download = `${name}-${title || "event-card"}.png`;
+  link.download = `${name}-${title}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
   setStatus("Card downloaded as a 1200 × 1200 PNG.");
@@ -314,6 +460,14 @@ function downloadCard() {
 function toggleBackgroundUpload() {
   const isUpload = currentBackgroundMode() === "upload";
   backgroundUploadWrap.classList.toggle("is-hidden", !isUpload);
+  renderCard();
+}
+
+function toggleCustomEventTitle() {
+  const isCustom = fields.eventPreset.value === "custom";
+  customEventTitleWrap.classList.toggle("is-hidden", !isCustom);
+  if (!isCustom) fields.title.value = fields.eventPreset.value;
+  updateCaption();
   renderCard();
 }
 
@@ -336,7 +490,11 @@ function bindEvents() {
 
   form.addEventListener("change", (event) => {
     if (event.target.name === "background-mode") toggleBackgroundUpload();
+    if (event.target === fields.eventPreset) toggleCustomEventTitle();
     if (event.target === fields.owner) toggleThirdPartyNote();
+    if (event.target === fields.language) {
+      loadCardLanguageFont().catch(() => {}).finally(renderCard);
+    }
     if (event.target === fields.photo) {
       handleImageUpload(fields.photo, "photo");
       photoControls.classList.remove("is-hidden");
@@ -360,13 +518,16 @@ function bindEvents() {
 
 async function start() {
   try {
-    const [background, logo] = await Promise.all([
+    const [background, logo, signalTrails] = await Promise.all([
       loadImage("assets/generic-event-background.png"),
       loadImage("assets/splunk-corporate-white.png"),
+      loadImage("assets/splunk-signal-trails-circles.svg"),
       document.fonts.ready,
     ]);
     state.genericBackground = background;
     state.logo = logo;
+    state.signalTrails = signalTrails;
+    loadCardLanguageFont().catch(() => {}).finally(renderCard);
     updateCaption(true);
     renderCard();
   } catch {

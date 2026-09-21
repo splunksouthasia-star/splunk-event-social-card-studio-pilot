@@ -60,7 +60,6 @@ textarea {
 }
 
 .site-header p,
-.privacy-note,
 .preview-note,
 .field-note,
 .action-status {
@@ -344,12 +343,6 @@ button {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
-}
-
-.privacy-note {
-  max-width: 142px;
-  margin: 0;
-  text-align: right;
 }
 
 .canvas-wrap {
