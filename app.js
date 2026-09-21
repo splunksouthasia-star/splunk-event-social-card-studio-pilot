@@ -104,6 +104,12 @@ function loadImage(source) {
   });
 }
 
+async function loadSignalTrails() {
+  if (state.signalTrails) return state.signalTrails;
+  state.signalTrails = await loadImage("splunk-signal-trails-circles-web.png");
+  return state.signalTrails;
+}
+
 function currentBackgroundMode() {
   return form.querySelector('input[name="background-mode"]:checked').value;
 }
@@ -489,7 +495,12 @@ function bindEvents() {
   });
 
   form.addEventListener("change", (event) => {
-    if (event.target.name === "background-mode") toggleBackgroundUpload();
+    if (event.target.name === "background-mode") {
+      toggleBackgroundUpload();
+      if (currentBackgroundMode() === "signal-trails") {
+        loadSignalTrails().then(renderCard).catch(() => setStatus("Signal Trails could not be loaded. Please choose another background."));
+      }
+    }
     if (event.target === fields.eventPreset) toggleCustomEventTitle();
     if (event.target === fields.owner) toggleThirdPartyNote();
     if (event.target === fields.language) {
@@ -518,15 +529,13 @@ function bindEvents() {
 
 async function start() {
   try {
-    const [background, logo, signalTrails] = await Promise.all([
+    const [background, logo] = await Promise.all([
       loadImage("assets/generic-event-background.png"),
       loadImage("assets/splunk-corporate-white.png"),
-      loadImage("splunk-signal-trails-circles.png"),
       document.fonts.ready,
     ]);
     state.genericBackground = background;
     state.logo = logo;
-    state.signalTrails = signalTrails;
     loadCardLanguageFont().catch(() => {}).finally(renderCard);
     updateCaption(true);
     renderCard();
