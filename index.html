@@ -15,14 +15,14 @@
       <a class="brand" href="#top" aria-label="Splunk Event Social Card Studio">
         <img src="assets/splunk-corporate-white.png" alt="Splunk, a Cisco company" />
       </a>
-      <p>Event social card studio</p>
+        <p>Event social card studio</p>
     </header>
 
     <main id="top" class="workspace">
       <section class="intro">
         <p class="eyebrow">Self-service event creative</p>
         <h1>Make your event card.</h1>
-        <p class="intro-copy">Choose an event, add your photo, and download a LinkedIn-ready card.</p>
+        <p class="intro-copy">Choose an event, add your photo, and download a social-ready card.</p>
       </section>
 
       <section class="studio" aria-label="Event social card generator">
@@ -62,15 +62,33 @@
               </div>
             </div>
 
+            <div class="two-column social-output-choice">
+              <div>
+                <label for="social-platform">Social network</label>
+                <select id="social-platform" name="social-platform">
+                  <option value="linkedin" selected>LinkedIn</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="x">X (Twitter)</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="social-format">Placement</label>
+                <select id="social-format" name="social-format"></select>
+              </div>
+            </div>
+
             <fieldset class="background-choice">
               <legend>Card background</legend>
               <label class="radio-option">
-                <input type="radio" name="background-mode" value="generic" checked />
-                <span>Splunk glow and grid</span>
+                <input type="radio" name="background-mode" value="signal-trails" checked />
+                <span>Splunk Signal Trails</span>
               </label>
               <label class="radio-option">
-                <input type="radio" name="background-mode" value="signal-trails" />
-                <span>Splunk Signal Trails</span>
+                <input type="radio" name="background-mode" value="generic" />
+                <span>Splunk glow and grid</span>
               </label>
               <label class="radio-option">
                 <input type="radio" name="background-mode" value="upload" />
@@ -81,7 +99,7 @@
             <div id="background-upload-wrap" class="upload-wrap is-hidden">
               <label for="background-upload">Approved dark event background</label>
               <input id="background-upload" name="background-upload" type="file" accept="image/png,image/jpeg,image/webp" />
-              <p class="field-note">Use a square background with an open text and portrait area. Finished artwork with existing copy is not supported.</p>
+              <p class="field-note">Use a background in the selected output size with an open text and portrait area. Finished artwork with existing copy is not supported.</p>
               <label class="check-option" for="readability-overlay">
                 <input id="readability-overlay" name="readability-overlay" type="checkbox" checked />
                 <span>Use the dark readability overlay</span>
@@ -151,7 +169,7 @@
             <label for="registration-link">Registration link <span class="optional">optional</span></label>
             <input id="registration-link" name="registration-link" type="url" placeholder="https://" />
 
-            <label for="caption">Suggested LinkedIn caption</label>
+            <label for="caption">Suggested social caption</label>
             <textarea id="caption" name="caption" rows="8"></textarea>
             <button id="reset-caption" class="text-button" type="button">Reset suggested caption</button>
           </section>
@@ -168,13 +186,13 @@
           <div class="preview-heading">
             <div>
               <p class="eyebrow">Live preview</p>
-              <h2>1200 × 1200</h2>
+              <h2 id="preview-size">1080 × 1080</h2>
             </div>
           </div>
           <div class="canvas-wrap">
-            <canvas id="card-canvas" width="1200" height="1200" aria-label="Generated event social card preview"></canvas>
+          <canvas id="card-canvas" width="1080" height="1080" aria-label="Generated event social card preview"></canvas>
           </div>
-          <p class="preview-note">Downloads as a 1200 × 1200 PNG.</p>
+          <p id="preview-note" class="preview-note">Downloads as a 1080 × 1080 PNG.</p>
         </section>
       </section>
     </main>

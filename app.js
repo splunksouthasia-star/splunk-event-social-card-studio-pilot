@@ -8,6 +8,8 @@ const fields = {
   title: document.querySelector("#event-title"),
   location: document.querySelector("#event-location"),
   date: document.querySelector("#event-date"),
+  platform: document.querySelector("#social-platform"),
+  socialFormat: document.querySelector("#social-format"),
   intent: document.querySelector("#card-intent"),
   language: document.querySelector("#card-language"),
   name: document.querySelector("#person-name"),
@@ -30,6 +32,9 @@ const thirdPartyNote = document.querySelector("#third-party-note");
 const photoControls = document.querySelector("#photo-controls");
 const photoCropNote = document.querySelector("#photo-crop-note");
 const actionStatus = document.querySelector("#action-status");
+const previewSize = document.querySelector("#preview-size");
+const previewNote = document.querySelector("#preview-note");
+const openLinkedInButton = document.querySelector("#open-linkedin");
 
 const state = {
   genericBackground: null,
@@ -43,17 +48,72 @@ const state = {
   captionEdited: false,
 };
 
-const CARD = 1200;
-const SOURCE = 1080;
-const s = CARD / SOURCE;
-const layout = {
-  eyebrow: { x: 72 * s, y: 156 * s, maxWidth: 830 * s, font: 52 * s },
-  title: { x: 72 * s, y: 246 * s, maxWidth: 965 * s, font: 74 * s },
-  location: { x: 72 * s, y: 334 * s, maxWidth: 600 * s, font: 80 * s },
-  date: { x: 78 * s, y: 448 * s, maxWidth: 650 * s, font: 40 * s },
-  profile: { x: 188 * s, y: 636 * s, maxWidth: 350 * s },
-  portrait: { x: 560 * s, y: 468 * s, size: 445 * s },
-  logo: { x: 824 * s, y: 20 * s, width: 220 * s, height: 119 * s },
+const socialFormats = {
+  square: {
+    label: "Square post — 1080 × 1080",
+    width: 1080,
+    height: 1080,
+    layout: {
+      eyebrow: { x: 72, y: 156, maxWidth: 830, font: 52 },
+      title: { x: 72, y: 246, maxWidth: 940, font: 74 },
+      location: { x: 72, y: 334, maxWidth: 600, font: 80 },
+      date: { x: 78, y: 448, maxWidth: 650, font: 40 },
+      profile: { x: 188, y: 636, maxWidth: 350 },
+      portrait: { x: 560, y: 468, size: 445 },
+      logo: { x: 824, y: 20, width: 220, height: 119 },
+    },
+  },
+  landscape: {
+    label: "Landscape post — 1200 × 627",
+    width: 1200,
+    height: 627,
+    layout: {
+      eyebrow: { x: 72, y: 115, maxWidth: 660, font: 38 },
+      title: { x: 72, y: 174, maxWidth: 670, font: 68 },
+      location: { x: 72, y: 258, maxWidth: 620, font: 65 },
+      date: { x: 72, y: 341, maxWidth: 620, font: 33 },
+      profile: { x: 72, y: 449, maxWidth: 480 },
+      portrait: { x: 802, y: 266, size: 288 },
+      logo: { x: 938, y: 30, width: 190, height: 102 },
+    },
+  },
+  portrait: {
+    label: "Portrait feed — 1080 × 1350",
+    width: 1080,
+    height: 1350,
+    layout: {
+      eyebrow: { x: 72, y: 168, maxWidth: 850, font: 50 },
+      title: { x: 72, y: 246, maxWidth: 930, font: 72 },
+      location: { x: 72, y: 334, maxWidth: 760, font: 76 },
+      date: { x: 76, y: 442, maxWidth: 700, font: 38 },
+      profile: { x: 116, y: 1010, maxWidth: 490 },
+      portrait: { x: 554, y: 588, size: 428 },
+      logo: { x: 824, y: 28, width: 220, height: 119 },
+    },
+  },
+  story: {
+    label: "Story / Status — 1080 × 1920",
+    width: 1080,
+    height: 1920,
+    layout: {
+      eyebrow: { x: 72, y: 278, maxWidth: 860, font: 52 },
+      title: { x: 72, y: 368, maxWidth: 940, font: 74 },
+      location: { x: 72, y: 460, maxWidth: 780, font: 78 },
+      date: { x: 76, y: 568, maxWidth: 720, font: 40 },
+      profile: { x: 112, y: 1584, maxWidth: 820 },
+      portrait: { x: 228, y: 804, size: 624 },
+      logo: { x: 824, y: 72, width: 220, height: 119 },
+    },
+  },
+};
+
+const platformFormats = {
+  linkedin: ["square", "landscape", "portrait"],
+  facebook: ["square", "landscape", "story"],
+  instagram: ["square", "portrait", "story"],
+  x: ["square", "landscape"],
+  whatsapp: ["square", "story"],
+  other: ["square", "landscape", "portrait", "story"],
 };
 
 const languagePack = {
@@ -116,6 +176,37 @@ function currentBackgroundMode() {
 
 function currentLanguage() {
   return languagePack[fields.language.value] || languagePack.en;
+}
+
+function currentFormat() {
+  return socialFormats[fields.socialFormat.value] || socialFormats.square;
+}
+
+function cardScale() {
+  const { width, height } = currentFormat();
+  return Math.min(width, height) / 1080;
+}
+
+function updatePreviewMeta() {
+  const { width, height } = currentFormat();
+  previewSize.textContent = `${width} × ${height}`;
+  previewNote.textContent = `Downloads as a ${width} × ${height} PNG.`;
+  openLinkedInButton.classList.toggle("is-hidden", fields.platform.value !== "linkedin");
+}
+
+function updateSocialFormats() {
+  const availableFormats = platformFormats[fields.platform.value] || platformFormats.other;
+  const previous = fields.socialFormat.value;
+  fields.socialFormat.replaceChildren(
+    ...availableFormats.map((format) => {
+      const option = document.createElement("option");
+      option.value = format;
+      option.textContent = socialFormats[format].label;
+      return option;
+    }),
+  );
+  fields.socialFormat.value = availableFormats.includes(previous) ? previous : availableFormats[0];
+  updatePreviewMeta();
 }
 
 function cardFont(weight, fontSize) {
@@ -243,7 +334,7 @@ function wrapText(text, maxWidth, fontSize, weight = 500, lineLimit = 2) {
   return lines.slice(0, lineLimit);
 }
 
-function fitFontForLines(text, maxWidth, startingSize, weight = 500, minSize = 23 * s, lineLimit = 2) {
+function fitFontForLines(text, maxWidth, startingSize, weight = 500, minSize = 23 * cardScale(), lineLimit = 2) {
   let fontSize = startingSize;
   while (fontSize > minSize) {
     if (wrapText(text, maxWidth, fontSize, weight, lineLimit + 1).length <= lineLimit) break;
@@ -252,9 +343,9 @@ function fitFontForLines(text, maxWidth, startingSize, weight = 500, minSize = 2
   return fontSize;
 }
 
-function drawProfileLine(text, y, font, weight = 460, minSize = 23 * s) {
+function drawProfileLine(text, y, font, weight = 460, minSize = 23 * cardScale()) {
   if (!text) return y;
-  const { x, maxWidth } = layout.profile;
+  const { x, maxWidth } = currentFormat().layout.profile;
   const size = fitFontForLines(text, maxWidth, font, weight, minSize);
   const lines = wrapText(text, maxWidth, size, weight);
   ctx.save();
@@ -271,29 +362,31 @@ function drawProfile() {
   const role = fields.role.value.trim() || "Your title";
   const region = fields.region.value.trim();
   const organisation = fields.organisation.value.trim();
-  let y = layout.profile.y;
+  const unit = cardScale();
+  let y = currentFormat().layout.profile.y;
 
-  y = drawProfileLine(name, y, 37 * s, 680, 24 * s);
+  y = drawProfileLine(name, y, 37 * unit, 680, 24 * unit);
   const titleAndRegion = [role, region].filter(Boolean).join(", ");
-  y = drawProfileLine(titleAndRegion, y + 5 * s, 31 * s, 460, 22 * s);
-  drawProfileLine(organisation, y + 3 * s, 27 * s, 460, 21 * s);
+  y = drawProfileLine(titleAndRegion, y + 5 * unit, 31 * unit, 460, 22 * unit);
+  drawProfileLine(organisation, y + 3 * unit, 27 * unit, 460, 21 * unit);
 }
 
 function drawPortrait() {
-  const { x, y, size } = layout.portrait;
+  const unit = cardScale();
+  const { x, y, size } = currentFormat().layout.portrait;
   const centerX = x + size / 2;
   const centerY = y + size / 2;
   const radius = size / 2;
 
   ctx.save();
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius + 13 * s, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, radius + 13 * unit, 0, Math.PI * 2);
   const ring = ctx.createLinearGradient(x, y, x + size, y + size);
   ring.addColorStop(0, "#FF007F");
   ring.addColorStop(0.52, "#FF596E");
   ring.addColorStop(1, "#FF9000");
   ctx.strokeStyle = ring;
-  ctx.lineWidth = 12 * s;
+  ctx.lineWidth = 12 * unit;
   ctx.stroke();
   ctx.restore();
 
@@ -315,18 +408,18 @@ function drawPortrait() {
     ctx.fillStyle = "#111922";
     ctx.fillRect(x, y, size, size);
     ctx.fillStyle = "#DCE4EA";
-    ctx.font = cardFont(560, 25 * s);
+    ctx.font = cardFont(560, 25 * unit);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("Upload", centerX, centerY - 16 * s);
-    ctx.fillText("portrait", centerX, centerY + 16 * s);
+    ctx.fillText("Upload", centerX, centerY - 16 * unit);
+    ctx.fillText("portrait", centerX, centerY + 16 * unit);
   }
   ctx.restore();
 }
 
 function drawLogo() {
   if (!state.logo) return;
-  const { x, y, width, height } = layout.logo;
+  const { x, y, width, height } = currentFormat().layout.logo;
   const aspect = state.logo.width / state.logo.height;
   let drawWidth = width;
   let drawHeight = drawWidth / aspect;
@@ -338,54 +431,62 @@ function drawLogo() {
 }
 
 function drawSignalTrailsBackground() {
+  const { width, height } = currentFormat();
+  const unit = cardScale();
   ctx.fillStyle = "#0B1118";
-  ctx.fillRect(0, 0, CARD, CARD);
+  ctx.fillRect(0, 0, width, height);
 
-  const blueGlow = ctx.createRadialGradient(180 * s, 88 * s, 0, 180 * s, 88 * s, 760 * s);
+  const blueGlow = ctx.createRadialGradient(180 * unit, 88 * unit, 0, 180 * unit, 88 * unit, Math.max(width, height) * 0.72);
   blueGlow.addColorStop(0, "rgba(10,96,255,0.26)");
   blueGlow.addColorStop(1, "rgba(10,96,255,0)");
   ctx.fillStyle = blueGlow;
-  ctx.fillRect(0, 0, CARD, CARD);
+  ctx.fillRect(0, 0, width, height);
 
-  const signalGlow = ctx.createLinearGradient(330 * s, CARD, CARD, CARD);
+  const signalGlow = ctx.createLinearGradient(width * 0.3, height, width, height);
   signalGlow.addColorStop(0, "rgba(255,0,127,0)");
   signalGlow.addColorStop(0.48, "rgba(255,0,127,0.76)");
   signalGlow.addColorStop(1, "rgba(255,144,0,0.84)");
   ctx.fillStyle = signalGlow;
-  ctx.fillRect(0, 620 * s, CARD, 460 * s);
+  ctx.fillRect(0, height * 0.48, width, height * 0.52);
 
   if (state.signalTrails) {
     ctx.save();
     ctx.globalAlpha = 0.46;
-    drawImageCover(state.signalTrails, 0, 0, CARD, CARD);
+    drawImageCover(state.signalTrails, 0, 0, width, height);
     ctx.restore();
   }
 }
 
 function drawBackground() {
   const mode = currentBackgroundMode();
+  const { width, height } = currentFormat();
   if (mode === "signal-trails") {
     drawSignalTrailsBackground();
     return;
   }
 
   ctx.fillStyle = "#0B1118";
-  ctx.fillRect(0, 0, CARD, CARD);
+  ctx.fillRect(0, 0, width, height);
   const background = mode === "upload" && state.customBackground ? state.customBackground : state.genericBackground;
-  if (background) drawImageCover(background, 0, 0, CARD, CARD);
+  if (background) drawImageCover(background, 0, 0, width, height);
 
   if (mode === "upload" && fields.overlay.checked) {
-    const overlay = ctx.createLinearGradient(0, 0, CARD, 0);
+    const overlay = ctx.createLinearGradient(0, 0, width, 0);
     overlay.addColorStop(0, "rgba(4,7,11,0.74)");
     overlay.addColorStop(0.56, "rgba(4,7,11,0.26)");
     overlay.addColorStop(1, "rgba(4,7,11,0)");
     ctx.fillStyle = overlay;
-    ctx.fillRect(0, 0, CARD, CARD);
+    ctx.fillRect(0, 0, width, height);
   }
 }
 
 function renderCard() {
-  ctx.clearRect(0, 0, CARD, CARD);
+  const { width, height, layout } = currentFormat();
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  ctx.clearRect(0, 0, width, height);
   drawBackground();
   drawLogo();
 
@@ -456,11 +557,13 @@ async function downloadCard() {
   };
   const title = filePart(fields.title.value, "event-card");
   const name = filePart(fields.name.value, "splunk");
+  const format = fields.socialFormat.value || "square";
   const link = document.createElement("a");
-  link.download = `${name}-${title}.png`;
+  link.download = `${name}-${title}-${format}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
-  setStatus("Card downloaded as a 1200 × 1200 PNG.");
+  const { width, height } = currentFormat();
+  setStatus(`Card downloaded as a ${width} × ${height} PNG.`);
 }
 
 function toggleBackgroundUpload() {
@@ -503,6 +606,14 @@ function bindEvents() {
     }
     if (event.target === fields.eventPreset) toggleCustomEventTitle();
     if (event.target === fields.owner) toggleThirdPartyNote();
+    if (event.target === fields.platform) {
+      updateSocialFormats();
+      renderCard();
+    }
+    if (event.target === fields.socialFormat) {
+      updatePreviewMeta();
+      renderCard();
+    }
     if (event.target === fields.language) {
       loadCardLanguageFont().catch(() => {}).finally(renderCard);
     }
@@ -536,7 +647,9 @@ async function start() {
     ]);
     state.genericBackground = background;
     state.logo = logo;
+    updateSocialFormats();
     loadCardLanguageFont().catch(() => {}).finally(renderCard);
+    loadSignalTrails().then(renderCard).catch(() => {});
     updateCaption(true);
     renderCard();
   } catch {
