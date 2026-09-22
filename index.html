@@ -46,9 +46,10 @@
               <option value="Splunk GO">Splunk GO</option>
               <option value="custom">Custom event name</option>
             </select>
+            <p class="field-note">Choose a Splunk event format, or select Custom event name to enter your own.</p>
             <div id="custom-event-title-wrap" class="is-hidden">
               <label for="event-title">Custom event name</label>
-              <input id="event-title" name="event-title" type="text" value="Splunk Experience Day" maxlength="48" />
+              <input id="event-title" name="event-title" type="text" placeholder="e.g., Splunk Experience Day" maxlength="48" />
             </div>
 
             <div class="two-column">
@@ -75,13 +76,15 @@
                 </select>
               </div>
               <div>
-                <label for="social-format">Placement</label>
+                <label for="social-format">Post format</label>
                 <select id="social-format" name="social-format"></select>
               </div>
             </div>
+            <p class="field-note">Choose where you plan to post; a recommended format is selected automatically.</p>
 
             <fieldset class="background-choice">
               <legend>Card background</legend>
+              <p class="field-note">Use the standard background, or upload approved event artwork.</p>
               <label class="radio-option">
                 <input type="radio" name="background-mode" value="concentric-circles" checked />
                 <span>Concentric-circle master</span>
@@ -123,8 +126,9 @@
               <option value="attending">I am attending</option>
               <option value="meet">Meet me at</option>
             </select>
+            <p class="field-note">Choose the statement that appears at the top of your card.</p>
 
-            <label for="card-language">Choose your language</label>
+            <label for="card-language">Card language</label>
             <select id="card-language" name="card-language">
               <option value="en" selected>English</option>
               <option value="ko">한국어</option>
@@ -133,11 +137,12 @@
               <option value="th">ไทย</option>
               <option value="ja">日本語</option>
             </select>
+            <p class="field-note">Choose the language used in the message on your card.</p>
             <label for="person-name">Your name</label>
-            <input id="person-name" name="person-name" type="text" value="Your name" maxlength="32" />
+            <input id="person-name" name="person-name" type="text" placeholder="e.g., Amol Gaikwad" maxlength="32" />
 
             <label for="person-role">Your title</label>
-            <input id="person-role" name="person-role" type="text" value="Your title" maxlength="48" />
+            <input id="person-role" name="person-role" type="text" placeholder="e.g., Head of Marketing, APJC" maxlength="48" />
 
             <label for="person-region">Region or team <span class="optional">optional</span></label>
             <input id="person-region" name="person-region" type="text" maxlength="38" />
@@ -169,13 +174,15 @@
             <label for="registration-link">Registration link <span class="optional">optional</span></label>
             <input id="registration-link" name="registration-link" type="url" placeholder="https://" />
 
-            <label for="caption">Suggested social caption</label>
+            <label for="caption">Caption for your post</label>
+            <p class="field-note">Edit this draft, or write your own. It will not change the text on your card.</p>
             <textarea id="caption" name="caption" rows="8"></textarea>
-            <button id="reset-caption" class="text-button" type="button">Reset suggested caption</button>
+            <button id="reset-caption" class="text-button" type="button">Use suggested caption</button>
           </section>
 
           <section class="actions">
-            <button id="download-card" class="primary-button" type="button">Download card</button>
+            <button id="download-card" class="primary-button" type="button">Download PNG card</button>
+            <p class="action-note">Downloads the card at the selected social-media size.</p>
             <button id="copy-caption" class="secondary-button" type="button">Copy caption</button>
             <button id="open-linkedin" class="secondary-button" type="button">Copy caption and open LinkedIn</button>
             <p id="action-status" class="action-status" aria-live="polite"></p>

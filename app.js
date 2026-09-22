@@ -246,11 +246,12 @@ function formattedDate() {
 }
 
 function suggestedCaption() {
-  const title = fields.title.value.trim() || "this event";
+  const title = fields.title.value.trim();
   const place = titleCaseLocation(fields.location.value.trim());
   const date = formattedDate();
   const link = fields.registration.value.trim();
-  const lines = [`${captionLead(fields.intent.value)} ${title}${place ? ` in ${place}` : ""}.`];
+  const lines = [];
+  if (title) lines.push(`${captionLead(fields.intent.value)} ${title}${place ? ` in ${place}` : ""}.`);
   if (date) lines.push(`Join me on ${date}.`);
   if (link) lines.push(`Register here: ${link}`);
   lines.push("#Splunk #Cisco");
@@ -367,8 +368,8 @@ function drawProfileLine(text, y, font, weight = 460, minSize = 23 * cardScale()
 }
 
 function drawProfile() {
-  const name = fields.name.value.trim() || "Your name";
-  const role = fields.role.value.trim() || "Your title";
+  const name = fields.name.value.trim();
+  const role = fields.role.value.trim();
   const region = fields.region.value.trim();
   const organisation = fields.organisation.value.trim();
   const unit = cardScale();
@@ -494,7 +495,7 @@ function renderCard() {
   if (!(currentBackgroundMode() === "concentric-circles" && hasMatchingConcentricMaster())) drawLogo();
 
   drawText(intentCopy(fields.intent.value), { ...layout.eyebrow, weight: 650, color: "#FFFFFF" });
-  drawText(fields.title.value.trim() || "Event name", { ...layout.title, weight: 680, gradient: true });
+  drawText(fields.title.value.trim(), { ...layout.title, weight: 680, gradient: true });
   drawText(fields.location.value.trim(), { ...layout.location, weight: 650, color: "#FFFFFF" });
   drawText(formattedDate(), { ...layout.date, weight: 450, color: "#FFFFFF" });
   drawProfile();
@@ -578,7 +579,7 @@ function toggleBackgroundUpload() {
 function toggleCustomEventTitle() {
   const isCustom = fields.eventPreset.value === "custom";
   customEventTitleWrap.classList.toggle("is-hidden", !isCustom);
-  if (!isCustom) fields.title.value = fields.eventPreset.value;
+  fields.title.value = isCustom ? "" : fields.eventPreset.value;
   updateCaption();
   renderCard();
 }
@@ -636,7 +637,7 @@ function bindEvents() {
   document.querySelector("#reset-caption").addEventListener("click", () => {
     state.captionEdited = false;
     updateCaption(true);
-    setStatus("Suggested caption restored.");
+    setStatus("Suggested caption applied.");
   });
 }
 
@@ -652,6 +653,7 @@ async function start() {
     state.logo = logo;
     state.concentricSquare = concentricSquare;
     state.concentricLandscape = concentricLandscape;
+    toggleCustomEventTitle();
     updateSocialFormats();
     loadCardLanguageFont().catch(() => {}).finally(renderCard);
     updateCaption(true);

@@ -174,6 +174,7 @@ legend {
 
 input[type="text"],
 input[type="url"],
+input[type="date"],
 select,
 textarea {
   width: 100%;
@@ -193,6 +194,7 @@ textarea {
 
 input[type="text"]:focus,
 input[type="url"]:focus,
+input[type="date"]:focus,
 select:focus,
 textarea:focus,
 input[type="file"]:focus-visible,
@@ -203,6 +205,16 @@ button:focus-visible {
 
 select {
   cursor: pointer;
+}
+
+input[type="date"] {
+  color-scheme: dark;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
 }
 
 input[type="file"] {
@@ -311,8 +323,24 @@ button {
 }
 
 .primary-button {
-  color: #04070b;
-  background: var(--white);
+  grid-column: span 2;
+  min-height: 54px;
+  color: #04070b !important;
+  border-color: var(--white) !important;
+  background: var(--white) !important;
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.16);
+}
+
+.primary-button:hover {
+  background: var(--soft) !important;
+}
+
+.action-note {
+  grid-column: span 2;
+  margin: -2px 0 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .secondary-button {
@@ -396,6 +424,7 @@ canvas {
   }
 
   #open-linkedin,
+  .action-note,
   .action-status {
     grid-column: span 1;
   }
