@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=features-20260928" />
   </head>
   <body>
     <header class="site-header">
@@ -58,10 +58,61 @@
                 <input id="event-location" name="event-location" type="text" value="Delhi 2026" maxlength="26" />
               </div>
               <div>
-                <label for="event-date">Date</label>
-                <input id="event-date" name="event-date" type="date" value="2026-09-25" />
+                <label for="event-date-mode">Event dates</label>
+                <select id="event-date-mode" name="event-date-mode">
+                  <option value="single" selected>Single day</option>
+                  <option value="range">Date range</option>
+                </select>
               </div>
             </div>
+            <div id="single-date-wrap">
+              <label for="event-date">Date <span class="optional">optional</span></label>
+              <input id="event-date" name="event-date" type="date" value="2026-09-25" />
+            </div>
+            <div id="date-range-wrap" class="two-column is-hidden">
+              <div>
+                <label for="event-start-date">Start date</label>
+                <input id="event-start-date" name="event-start-date" type="date" />
+              </div>
+              <div>
+                <label for="event-end-date">End date</label>
+                <input id="event-end-date" name="event-end-date" type="date" />
+              </div>
+            </div>
+            <p class="field-note">Leave the dates blank if you do not want them shown on the card.</p>
+
+            <div class="two-column">
+              <div>
+                <label for="event-start-time">Speaking slot <span class="optional">optional</span></label>
+                <input id="event-start-time" name="event-start-time" type="time" />
+              </div>
+              <div>
+                <label for="event-end-time">End time <span class="optional">optional</span></label>
+                <input id="event-end-time" name="event-end-time" type="time" />
+              </div>
+            </div>
+            <div class="two-column">
+              <div>
+                <label for="event-time-zone">Time zone <span class="optional">optional</span></label>
+                <select id="event-time-zone" name="event-time-zone">
+                  <option value="">Select time zone</option>
+                  <option value="IST">IST</option>
+                  <option value="SGT">SGT</option>
+                  <option value="ICT">ICT</option>
+                  <option value="HKT">HKT</option>
+                  <option value="CST">CST</option>
+                  <option value="JST">JST</option>
+                  <option value="KST">KST</option>
+                  <option value="AEST">AEST</option>
+                  <option value="UTC">UTC</option>
+                </select>
+              </div>
+              <div>
+                <label for="event-booth">Booth number <span class="optional">optional</span></label>
+                <input id="event-booth" name="event-booth" type="text" placeholder="e.g., 24" maxlength="16" />
+              </div>
+            </div>
+            <p class="field-note">Add a speaking slot, time zone or booth number only if you want it shown.</p>
 
             <div class="two-column social-output-choice">
               <div>
@@ -125,8 +176,9 @@
               <option value="speaking">I am speaking at</option>
               <option value="attending">I am attending</option>
               <option value="meet">Meet me at</option>
+              <option value="banner">Event shout-out</option>
             </select>
-            <p class="field-note">Choose the statement that appears at the top of your card.</p>
+            <p class="field-note">Choose a profile message, or select Event shout-out for an event-led card without a headshot.</p>
 
             <label for="card-language">Card language</label>
             <select id="card-language" name="card-language">
@@ -138,30 +190,32 @@
               <option value="ja">日本語</option>
             </select>
             <p class="field-note">Choose the language used in the message on your card.</p>
-            <label for="person-name">Your name</label>
-            <input id="person-name" name="person-name" type="text" placeholder="e.g., Amol Gaikwad" maxlength="32" />
+            <div id="profile-card-fields">
+              <label for="person-name">Your name</label>
+              <input id="person-name" name="person-name" type="text" placeholder="e.g., Amol Gaikwad" maxlength="32" />
 
-            <label for="person-role">Your title</label>
-            <input id="person-role" name="person-role" type="text" placeholder="e.g., Head of Marketing, APJC" maxlength="48" />
+              <label for="person-role">Your title</label>
+              <input id="person-role" name="person-role" type="text" placeholder="e.g., Head of Marketing, APJC" maxlength="48" />
 
-            <label for="person-region">Region or team <span class="optional">optional</span></label>
-            <input id="person-region" name="person-region" type="text" maxlength="38" />
+              <label for="person-region">Region or team <span class="optional">optional</span></label>
+              <input id="person-region" name="person-region" type="text" maxlength="38" />
 
-            <label for="person-organisation">Organisation</label>
-            <input id="person-organisation" name="person-organisation" type="text" value="Splunk" maxlength="32" />
+              <label for="person-organisation">Organisation</label>
+              <input id="person-organisation" name="person-organisation" type="text" value="Splunk" maxlength="32" />
 
-            <label for="photo-upload">Profile photo</label>
-            <input id="photo-upload" name="photo-upload" type="file" accept="image/png,image/jpeg,image/webp" />
-            <p class="field-note">Recommended: a clear, front-facing square image at least 800 × 800 px. Portrait photos work too.</p>
+              <label for="photo-upload">Profile photo</label>
+              <input id="photo-upload" name="photo-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+              <p class="field-note">Recommended: a clear, front-facing square image at least 800 × 800 px. Portrait photos work too.</p>
 
-            <div id="photo-controls" class="photo-controls is-hidden">
-              <label for="photo-zoom">Photo zoom</label>
-              <input id="photo-zoom" type="range" min="1" max="2.6" step="0.01" value="1" />
-              <label for="photo-horizontal">Move photo left or right</label>
-              <input id="photo-horizontal" type="range" min="-1" max="1" step="0.01" value="0" />
-              <label for="photo-vertical">Move photo up or down</label>
-              <input id="photo-vertical" type="range" min="-1" max="1" step="0.01" value="0" />
-              <p id="photo-crop-note" class="field-note">Tip: increase Photo zoom to give yourself more room to reposition the image.</p>
+              <div id="photo-controls" class="photo-controls is-hidden">
+                <label for="photo-zoom">Photo zoom</label>
+                <input id="photo-zoom" type="range" min="1" max="2.6" step="0.01" value="1" />
+                <label for="photo-horizontal">Move photo left or right</label>
+                <input id="photo-horizontal" type="range" min="-1" max="1" step="0.01" value="0" />
+                <label for="photo-vertical">Move photo up or down</label>
+                <input id="photo-vertical" type="range" min="-1" max="1" step="0.01" value="0" />
+                <p id="photo-crop-note" class="field-note">Tip: increase Photo zoom to give yourself more room to reposition the image.</p>
+              </div>
             </div>
           </section>
 
@@ -204,6 +258,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=e80c9d1"></script>
+    <script src="app.js?v=features-20260928"></script>
   </body>
 </html>

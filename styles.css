@@ -175,6 +175,7 @@ legend {
 input[type="text"],
 input[type="url"],
 input[type="date"],
+input[type="time"],
 select,
 textarea {
   width: 100%;
@@ -195,6 +196,7 @@ textarea {
 input[type="text"]:focus,
 input[type="url"]:focus,
 input[type="date"]:focus,
+input[type="time"]:focus,
 select:focus,
 textarea:focus,
 input[type="file"]:focus-visible,
@@ -207,7 +209,8 @@ select {
   cursor: pointer;
 }
 
-input[type="date"] {
+input[type="date"],
+input[type="time"] {
   color-scheme: dark;
 }
 

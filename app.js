@@ -7,7 +7,14 @@ const fields = {
   eventPreset: document.querySelector("#event-preset"),
   title: document.querySelector("#event-title"),
   location: document.querySelector("#event-location"),
+  dateMode: document.querySelector("#event-date-mode"),
   date: document.querySelector("#event-date"),
+  startDate: document.querySelector("#event-start-date"),
+  endDate: document.querySelector("#event-end-date"),
+  startTime: document.querySelector("#event-start-time"),
+  endTime: document.querySelector("#event-end-time"),
+  timeZone: document.querySelector("#event-time-zone"),
+  booth: document.querySelector("#event-booth"),
   platform: document.querySelector("#social-platform"),
   socialFormat: document.querySelector("#social-format"),
   intent: document.querySelector("#card-intent"),
@@ -28,7 +35,10 @@ const fields = {
 
 const backgroundUploadWrap = document.querySelector("#background-upload-wrap");
 const customEventTitleWrap = document.querySelector("#custom-event-title-wrap");
+const singleDateWrap = document.querySelector("#single-date-wrap");
+const dateRangeWrap = document.querySelector("#date-range-wrap");
 const thirdPartyNote = document.querySelector("#third-party-note");
+const profileCardFields = document.querySelector("#profile-card-fields");
 const photoControls = document.querySelector("#photo-controls");
 const photoCropNote = document.querySelector("#photo-crop-note");
 const actionStatus = document.querySelector("#action-status");
@@ -59,6 +69,8 @@ const socialFormats = {
       title: { x: 72, y: 246, maxWidth: 940, font: 74 },
       location: { x: 72, y: 334, maxWidth: 600, font: 80 },
       date: { x: 78, y: 448, maxWidth: 650, font: 40 },
+      time: { x: 78, y: 510, maxWidth: 650, font: 34 },
+      booth: { x: 78, y: 566, maxWidth: 650, font: 34 },
       profile: { x: 188, y: 636, maxWidth: 350 },
       portrait: { x: 560, y: 468, size: 445 },
       logo: { x: 824, y: 20, width: 220, height: 119 },
@@ -73,6 +85,8 @@ const socialFormats = {
       title: { x: 72, y: 174, maxWidth: 670, font: 68 },
       location: { x: 72, y: 258, maxWidth: 620, font: 65 },
       date: { x: 72, y: 341, maxWidth: 620, font: 33 },
+      time: { x: 72, y: 386, maxWidth: 620, font: 28 },
+      booth: { x: 72, y: 425, maxWidth: 620, font: 28 },
       profile: { x: 72, y: 449, maxWidth: 480 },
       portrait: { x: 802, y: 266, size: 288 },
       logo: { x: 938, y: 30, width: 190, height: 102 },
@@ -87,6 +101,8 @@ const socialFormats = {
       title: { x: 72, y: 246, maxWidth: 930, font: 72 },
       location: { x: 72, y: 334, maxWidth: 760, font: 76 },
       date: { x: 76, y: 442, maxWidth: 700, font: 38 },
+      time: { x: 76, y: 505, maxWidth: 700, font: 32 },
+      booth: { x: 76, y: 555, maxWidth: 700, font: 32 },
       profile: { x: 116, y: 1010, maxWidth: 490 },
       portrait: { x: 554, y: 588, size: 428 },
       logo: { x: 824, y: 28, width: 220, height: 119 },
@@ -101,6 +117,8 @@ const socialFormats = {
       title: { x: 72, y: 368, maxWidth: 940, font: 74 },
       location: { x: 72, y: 460, maxWidth: 780, font: 78 },
       date: { x: 76, y: 568, maxWidth: 720, font: 40 },
+      time: { x: 76, y: 638, maxWidth: 720, font: 34 },
+      booth: { x: 76, y: 692, maxWidth: 720, font: 34 },
       profile: { x: 112, y: 1584, maxWidth: 820 },
       portrait: { x: 228, y: 804, size: 624 },
       logo: { x: 824, y: 72, width: 220, height: 119 },
@@ -122,37 +140,37 @@ const languagePack = {
     locale: "en",
     fontFamily: 'Inter, Arial, sans-serif',
     fontName: "Inter",
-    copy: { speaking: "I am speaking at", attending: "I am attending", meet: "Meet me at" },
+    copy: { speaking: "I am speaking at", attending: "I am attending", meet: "Meet me at", banner: "Join us at" },
   },
   ko: {
     locale: "ko",
     fontFamily: '"Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif',
     fontName: "Noto Sans KR",
-    copy: { speaking: "발표자로 참여합니다", attending: "행사에 참석합니다", meet: "행사에서 만나요" },
+    copy: { speaking: "발표자로 참여합니다", attending: "행사에 참석합니다", meet: "행사에서 만나요", banner: "행사에서 만나요" },
   },
   "zh-Hans": {
     locale: "zh-CN",
     fontFamily: '"Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif',
     fontName: "Noto Sans SC",
-    copy: { speaking: "我将在本次活动演讲", attending: "我将参加本次活动", meet: "活动现场见" },
+    copy: { speaking: "我将在本次活动演讲", attending: "我将参加本次活动", meet: "活动现场见", banner: "欢迎参加" },
   },
   "zh-Hant": {
     locale: "zh-TW",
     fontFamily: '"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif',
     fontName: "Noto Sans TC",
-    copy: { speaking: "我將在本次活動演講", attending: "我將參加本次活動", meet: "活動現場見" },
+    copy: { speaking: "我將在本次活動演講", attending: "我將參加本次活動", meet: "活動現場見", banner: "歡迎參加" },
   },
   th: {
     locale: "th",
     fontFamily: '"Noto Sans Thai", "Thonburi", Tahoma, Arial, sans-serif',
     fontName: "Noto Sans Thai",
-    copy: { speaking: "ร่วมเป็นวิทยากร", attending: "เข้าร่วมงาน", meet: "พบกันที่งาน" },
+    copy: { speaking: "ร่วมเป็นวิทยากร", attending: "เข้าร่วมงาน", meet: "พบกันที่งาน", banner: "พบกันที่งาน" },
   },
   ja: {
     locale: "ja",
     fontFamily: '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", Arial, sans-serif',
     fontName: "Noto Sans JP",
-    copy: { speaking: "登壇します", attending: "参加します", meet: "会場で会いましょう" },
+    copy: { speaking: "登壇します", attending: "参加します", meet: "会場で会いましょう", banner: "会場で会いましょう" },
   },
 };
 
@@ -231,28 +249,83 @@ function titleCaseLocation(value) {
   return value.replace(/\s+\d{4}$/, "").trim();
 }
 
-function formattedDate() {
-  const value = fields.date.value;
-  if (!value) return "";
-
+function dateFromValue(value) {
+  if (!value) return null;
   const [year, month, day] = value.split("-").map(Number);
-  const date = new Date(year, month - 1, day);
+  return new Date(year, month - 1, day);
+}
+
+function formatDateValue(value, includeWeekday = false) {
+  const date = dateFromValue(value);
+  if (!date) return "";
   return new Intl.DateTimeFormat(currentLanguage().locale, {
-    weekday: "long",
+    ...(includeWeekday ? { weekday: "long" } : {}),
     month: "long",
     day: "numeric",
     year: "numeric",
   }).format(date);
 }
 
+function formattedDate() {
+  if (fields.dateMode.value === "single") return formatDateValue(fields.date.value, true);
+
+  const startValue = fields.startDate.value;
+  const endValue = fields.endDate.value;
+  if (!startValue && !endValue) return "";
+  if (!startValue) return formatDateValue(endValue);
+  if (!endValue) return formatDateValue(startValue);
+
+  const start = dateFromValue(startValue);
+  const end = dateFromValue(endValue);
+  const locale = currentLanguage().locale;
+  if (locale === "en" && start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth()) {
+    const month = new Intl.DateTimeFormat(locale, { month: "long" }).format(start);
+    return `${month} ${start.getDate()}–${end.getDate()}, ${start.getFullYear()}`;
+  }
+  return `${formatDateValue(startValue)}–${formatDateValue(endValue)}`;
+}
+
+function formattedTime() {
+  const startValue = fields.startTime.value;
+  const endValue = fields.endTime.value;
+  if (!startValue && !endValue) return "";
+
+  const formatPart = (value) => {
+    const [hours, minutes] = value.split(":").map(Number);
+    const suffix = hours >= 12 ? "pm" : "am";
+    const hour = hours % 12 || 12;
+    return { text: `${hour}${minutes ? `:${String(minutes).padStart(2, "0")}` : ""}`, suffix };
+  };
+
+  const start = startValue ? formatPart(startValue) : null;
+  const end = endValue ? formatPart(endValue) : null;
+  let result = "";
+  if (start && end && start.suffix === end.suffix) result = `${start.text}–${end.text} ${end.suffix}`;
+  else if (start && end) result = `${start.text} ${start.suffix}–${end.text} ${end.suffix}`;
+  else result = `${(start || end).text} ${(start || end).suffix}`;
+  return `${result}${fields.timeZone.value ? ` ${fields.timeZone.value}` : ""}`;
+}
+
+function formattedBooth() {
+  const booth = fields.booth.value.trim();
+  return booth ? `Booth ${booth}` : "";
+}
+
 function suggestedCaption() {
   const title = fields.title.value.trim();
   const place = titleCaseLocation(fields.location.value.trim());
   const date = formattedDate();
+  const time = formattedTime();
+  const booth = formattedBooth();
   const link = fields.registration.value.trim();
   const lines = [];
-  if (title) lines.push(`${captionLead(fields.intent.value)} ${title}${place ? ` in ${place}` : ""}.`);
-  if (date) lines.push(`Join me on ${date}.`);
+  if (title) {
+    const lead = fields.intent.value === "banner" ? "Join us at" : captionLead(fields.intent.value);
+    lines.push(`${lead} ${title}${place ? ` in ${place}` : ""}.`);
+  }
+  if (date) lines.push(fields.intent.value === "banner" ? `Save the date: ${date}.` : `Join me on ${date}.`);
+  if (time) lines.push(`Time: ${time}.`);
+  if (booth) lines.push(`Meet us at ${booth}.`);
   if (link) lines.push(`Register here: ${link}`);
   lines.push("#Splunk #Cisco");
   return lines.join("\n\n");
@@ -498,8 +571,12 @@ function renderCard() {
   drawText(fields.title.value.trim(), { ...layout.title, weight: 680, gradient: true });
   drawText(fields.location.value.trim(), { ...layout.location, weight: 650, color: "#FFFFFF" });
   drawText(formattedDate(), { ...layout.date, weight: 450, color: "#FFFFFF" });
-  drawProfile();
-  drawPortrait();
+  drawText(formattedTime(), { ...layout.time, weight: 450, color: "#FFFFFF" });
+  drawText(formattedBooth(), { ...layout.booth, weight: 450, color: "#FFFFFF" });
+  if (fields.intent.value !== "banner") {
+    drawProfile();
+    drawPortrait();
+  }
 }
 
 async function handleImageUpload(input, target) {
@@ -576,6 +653,21 @@ function toggleBackgroundUpload() {
   renderCard();
 }
 
+function toggleDateMode() {
+  const isRange = fields.dateMode.value === "range";
+  singleDateWrap.classList.toggle("is-hidden", isRange);
+  dateRangeWrap.classList.toggle("is-hidden", !isRange);
+  updateCaption();
+  renderCard();
+}
+
+function toggleCardMode() {
+  const isBanner = fields.intent.value === "banner";
+  profileCardFields.classList.toggle("is-hidden", isBanner);
+  updateCaption();
+  renderCard();
+}
+
 function toggleCustomEventTitle() {
   const isCustom = fields.eventPreset.value === "custom";
   customEventTitleWrap.classList.toggle("is-hidden", !isCustom);
@@ -606,6 +698,8 @@ function bindEvents() {
       toggleBackgroundUpload();
     }
     if (event.target === fields.eventPreset) toggleCustomEventTitle();
+    if (event.target === fields.dateMode) toggleDateMode();
+    if (event.target === fields.intent) toggleCardMode();
     if (event.target === fields.owner) toggleThirdPartyNote();
     if (event.target === fields.platform) {
       updateSocialFormats();
@@ -654,6 +748,8 @@ async function start() {
     state.concentricSquare = concentricSquare;
     state.concentricLandscape = concentricLandscape;
     toggleCustomEventTitle();
+    toggleDateMode();
+    toggleCardMode();
     updateSocialFormats();
     loadCardLanguageFont().catch(() => {}).finally(renderCard);
     updateCaption(true);
