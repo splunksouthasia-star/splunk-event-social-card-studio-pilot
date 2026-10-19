@@ -58,6 +58,7 @@ const state = {
   photoVertical: 0,
   captionEdited: false,
 };
+let webinarStudio = null;
 
 const socialFormats = {
   square: {
@@ -312,6 +313,7 @@ function formattedBooth() {
 }
 
 function suggestedCaption() {
+  if (webinarStudio?.isActive()) return webinarStudio.caption();
   const title = fields.title.value.trim();
   const place = titleCaseLocation(fields.location.value.trim());
   const date = formattedDate();
@@ -524,6 +526,7 @@ function currentConcentricMaster() {
 }
 
 function ensureMasterSupported() {
+  if (webinarStudio?.isActive()) return;
   if (currentBackgroundMode() !== "concentric-circles" || hasMatchingConcentricMaster()) return;
   form.querySelector('input[name="background-mode"][value="generic"]').checked = true;
   setStatus("The supplied concentric-circle masters are available in Square and Landscape. Switched to Splunk glow and grid for this placement.");
@@ -558,6 +561,11 @@ function drawBackground() {
 }
 
 function renderCard() {
+  if (webinarStudio?.isActive()) {
+    webinarStudio.render();
+    return;
+  }
+  document.querySelector("#download-card").disabled = false;
   const { width, height, layout } = currentFormat();
   if (canvas.width !== width || canvas.height !== height) {
     canvas.width = width;
@@ -626,6 +634,7 @@ async function copyCaption() {
 }
 
 async function downloadCard() {
+  if (webinarStudio?.isActive()) return webinarStudio.downloadCurrent();
   await loadCardLanguageFont().catch(() => {});
   renderCard();
   const filePart = (value, fallback) => {
@@ -747,6 +756,12 @@ async function start() {
     state.logo = logo;
     state.concentricSquare = concentricSquare;
     state.concentricLandscape = concentricLandscape;
+    webinarStudio = new WebinarStudio({
+      canvas, fields, getFormat: currentFormat, getLanguage: currentLanguage,
+      renderCard, updateCaption, setStatus, loadFont: loadCardLanguageFont,
+      onModeChange: () => { state.captionEdited = false; updatePreviewMeta(); },
+    });
+    await webinarStudio.loadAssets();
     toggleCustomEventTitle();
     toggleDateMode();
     toggleCardMode();
@@ -756,6 +771,7 @@ async function start() {
     renderCard();
   } catch {
     setStatus("The approved brand assets could not be loaded. Please refresh the page.");
+    if (state.logo && state.genericBackground) renderCard();
   }
   bindEvents();
 }

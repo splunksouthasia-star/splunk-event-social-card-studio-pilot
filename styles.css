@@ -427,8 +427,31 @@ canvas {
   }
 
   #open-linkedin,
+  .primary-button,
+  #download-webinar-set,
   .action-note,
   .action-status {
     grid-column: span 1;
   }
 }
+
+/* Webinar controls use the same visual language as the original card studio. */
+.webinar-mode #personal-event-fields,
+.webinar-mode .personal-card-section,
+.webinar-mode .background-choice,
+.webinar-mode #background-upload-wrap,
+.webinar-mode #third-party-note { display: none; }
+.repeat-card { min-width: 0; margin: 20px 0; padding: 0 16px 18px; border: 1px solid var(--panel-border); border-radius: 6px; background: rgba(4, 7, 11, .25); }
+.repeat-card legend { padding: 0 7px; color: var(--white); }
+.repeat-actions { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; }
+.repeat-actions .text-button { margin-bottom: 0; font-size: .8rem; }
+.assignment-list { margin-top: 20px; }
+.assignment-list .check-option { margin-top: 10px; }
+.subheading { margin: 26px 0 8px; font-size: .95rem; font-weight: 600; }
+.layout-feedback { padding: 12px 14px; border: 1px solid var(--panel-border); border-radius: 4px; color: var(--soft); background: var(--ink); font-size: .83rem; line-height: 1.5; }
+.layout-feedback.has-errors { border-color: #d5b47d; color: #ffe1b6; }
+.layout-feedback p { margin: 0 0 8px; }
+.layout-feedback p:last-child { margin-bottom: 0; }
+button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+#download-webinar-set { grid-column: 1 / -1; min-height: 48px; }
+.is-hidden { display: none !important; }
