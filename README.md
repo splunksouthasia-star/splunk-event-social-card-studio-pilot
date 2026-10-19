@@ -4,7 +4,8 @@ An entirely browser-based MVP for generating responsive, single-speaker event so
 
 ## What it does
 
-- Uses the supplied concentric-circle masters directly for Square and Landscape exports, with the skyline-free glow/grid background as an alternate option and the default for unsupported vertical masters.
+- Uses the supplied concentric-circle artwork for Square and Landscape exports, with the skyline-free glow/grid background as an alternate option and the default for unsupported vertical masters.
+- Applies the official Splunk by Cisco logo as a separate layer to every card and the portal header. The concentric-circle background files have no embedded logo; the standalone Square and Landscape graphics also carry the current lockup.
 - Lets a user select a post message, enter event details, upload a profile photo, adjust its crop, and export a PNG.
 - Provides platform-aware placements for LinkedIn, Facebook, Instagram, X, WhatsApp, and other use: Square (1080 × 1080), Landscape (1200 × 627), Portrait Feed (1080 × 1350), and Story / Status (1080 × 1920).
 - Lets an event owner upload an approved event background that matches the chosen output size.

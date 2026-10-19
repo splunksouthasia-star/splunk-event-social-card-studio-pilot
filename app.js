@@ -73,7 +73,7 @@ const socialFormats = {
       booth: { x: 78, y: 566, maxWidth: 650, font: 34 },
       profile: { x: 188, y: 636, maxWidth: 350 },
       portrait: { x: 560, y: 468, size: 445 },
-      logo: { x: 824, y: 20, width: 220, height: 119 },
+      logo: { x: 788, y: 56, width: 220, height: 81 },
     },
   },
   landscape: {
@@ -89,7 +89,7 @@ const socialFormats = {
       booth: { x: 72, y: 425, maxWidth: 620, font: 28 },
       profile: { x: 72, y: 449, maxWidth: 480 },
       portrait: { x: 802, y: 266, size: 288 },
-      logo: { x: 938, y: 30, width: 190, height: 102 },
+      logo: { x: 918, y: 28, width: 160, height: 59 },
     },
   },
   portrait: {
@@ -105,7 +105,7 @@ const socialFormats = {
       booth: { x: 76, y: 555, maxWidth: 700, font: 32 },
       profile: { x: 116, y: 1010, maxWidth: 490 },
       portrait: { x: 554, y: 588, size: 428 },
-      logo: { x: 824, y: 28, width: 220, height: 119 },
+      logo: { x: 788, y: 56, width: 220, height: 81 },
     },
   },
   story: {
@@ -121,7 +121,7 @@ const socialFormats = {
       booth: { x: 76, y: 692, maxWidth: 720, font: 34 },
       profile: { x: 112, y: 1584, maxWidth: 820 },
       portrait: { x: 228, y: 804, size: 624 },
-      logo: { x: 824, y: 72, width: 220, height: 119 },
+      logo: { x: 788, y: 96, width: 220, height: 81 },
     },
   },
 };
@@ -565,7 +565,7 @@ function renderCard() {
   }
   ctx.clearRect(0, 0, width, height);
   drawBackground();
-  if (!(currentBackgroundMode() === "concentric-circles" && hasMatchingConcentricMaster())) drawLogo();
+  drawLogo();
 
   drawText(intentCopy(fields.intent.value), { ...layout.eyebrow, weight: 650, color: "#FFFFFF" });
   drawText(fields.title.value.trim(), { ...layout.title, weight: 680, gradient: true });
@@ -739,9 +739,9 @@ async function start() {
   try {
     const [background, logo, concentricSquare, concentricLandscape] = await Promise.all([
       loadImage("assets/generic-event-background.png"),
-      loadImage("assets/splunk-corporate-white.png"),
-      loadImage("assets/concentric-circles-square.png"),
-      loadImage("assets/concentric-circles-landscape.png"),
+      loadImage("assets/splunk-by-cisco-white.svg"),
+      loadImage("assets/concentric-circles-square-background.png"),
+      loadImage("assets/concentric-circles-landscape-background.png"),
     ]);
     state.genericBackground = background;
     state.logo = logo;
