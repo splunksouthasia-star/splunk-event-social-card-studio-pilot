@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=webinars-20261019" />
+    <link rel="stylesheet" href="styles.css?v=events-20261019" />
   </head>
   <body>
     <header class="site-header">
@@ -22,7 +22,7 @@
       <section class="intro">
         <p class="eyebrow">Self-service event creative</p>
         <h1>Make your event card.</h1>
-        <p class="intro-copy">Create an event card, a webinar promotion, or a complete webinar series.</p>
+        <p class="intro-copy">Create a personal event card, a multi-speaker event promotion, or a webinar series.</p>
       </section>
 
       <section class="studio" aria-label="Event social card generator">
@@ -32,6 +32,7 @@
             <label for="creative-mode">What are you creating?</label>
             <select id="creative-mode">
               <option value="personal">Personal event card</option>
+              <option value="multi-event">Multi-speaker event — 2 or 3 speakers</option>
               <option value="webinar">Webinar</option>
               <option value="series">Webinar series — up to 3 sessions</option>
             </select>
@@ -45,6 +46,7 @@
               <option value="ja">日本語</option>
             </select>
           </section>
+          <div id="multi-event-controls" class="is-hidden"></div>
           <div id="webinar-controls" class="is-hidden"></div>
           <section class="form-section">
             <div class="section-heading">
@@ -272,7 +274,9 @@
     </main>
 
     <script src="webinar-renderer.js?v=webinars-20261019"></script>
-    <script src="webinar-studio.js?v=webinars-20261019"></script>
-    <script src="app.js?v=webinars-20261019"></script>
+    <script src="webinar-studio.js?v=events-20261019"></script>
+    <script src="event-renderer.js?v=events-20261019"></script>
+    <script src="event-studio.js?v=events-20261019"></script>
+    <script src="app.js?v=events-20261019"></script>
   </body>
 </html>

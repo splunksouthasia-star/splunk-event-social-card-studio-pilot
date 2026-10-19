@@ -1,6 +1,6 @@
 # Splunk Event Social Card Studio
 
-An entirely browser-based pilot for personal event cards, webinar promotions and webinar-series graphics. Hosted as a static GitHub Pages site; no server or account is needed to create artwork.
+An entirely browser-based pilot for personal event cards, multi-speaker event promotions, webinar promotions and webinar-series graphics. Hosted as a static GitHub Pages site; no server or account is needed to create artwork.
 
 ## What it does
 
@@ -11,6 +11,16 @@ An entirely browser-based pilot for personal event cards, webinar promotions and
 - Lets an event owner upload an approved event background that matches the chosen output size.
 - Generates a copyable social caption, and provides the LinkedIn handoff when LinkedIn is selected.
 - Keeps all user-selected photos and event backgrounds in the current browser session. Nothing is uploaded or saved by the app.
+
+## Multi-speaker event mode
+
+- Choose **Multi-speaker event** in the first dropdown, then select **2 or 3 speakers** and a **Horizontal or Vertical** layout. The vertical layout follows the approved rebalanced preview, with a larger event title and the CTA alongside the final speaker row.
+- Use a standard event name or custom text. City, venue, date or date range, local time and booth are optional. Blank fields disappear rather than showing replacement sample text.
+- **On-card caption / event theme** is optional and editable, including manual line breaks. A suggestion is available only when requested; clearing it removes it. The separate social-post caption remains editable and is not overwritten by subsequent event/profile changes once edited.
+- Light and dark glow styles use the supplied artwork and current official Splunk by Cisco logo. Each selected speaker can have an optional photograph with independent zoom and reposition controls. Use PNG, JPEG or WebP up to 20 MB.
+- Switching from 3 to 2 speakers retains the third profile in memory; selecting 3 restores it. Profiles and photos are independent of the webinar workflow.
+- PNG exports use the selected social format. Length and space checks block overlapping exports and explain how to adjust. Dense content is not guaranteed to fit landscape; use a taller format, vertical layout or shorter optional text.
+- The layout example uses illustrative details and speaker labels only; no employee portraits are bundled or uploaded.
 
 ## Webinar / webinar-series mode
 

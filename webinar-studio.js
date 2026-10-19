@@ -62,7 +62,7 @@
       }));
       this.assetsReady = true;
     }
-    isActive() { return this.mode.value !== 'personal'; }
+    isActive() { return ['webinar', 'series'].includes(this.mode.value); }
     sessions() { return this.mode.value === 'webinar' ? this.data.sessions.slice(0, 1) : this.data.sessions; }
     snapshot() { return { ...this.data, mode: this.mode.value, language: this.config.fields.language.value, registration: this.config.fields.registration.value.trim() }; }
     notify(forceCaption = false) { this.config.updateCaption(forceCaption); this.config.renderCard(); }

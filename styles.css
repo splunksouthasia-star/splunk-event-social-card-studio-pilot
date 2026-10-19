@@ -441,6 +441,13 @@ canvas {
 .webinar-mode .background-choice,
 .webinar-mode #background-upload-wrap,
 .webinar-mode #third-party-note { display: none; }
+.multi-event-mode #personal-event-fields,
+.multi-event-mode .personal-card-section,
+.multi-event-mode .background-choice,
+.multi-event-mode #background-upload-wrap,
+.multi-event-mode #third-party-note { display: none; }
+.event-optional-details { margin-top: 22px; border: 1px solid var(--panel-border); padding: 14px; border-radius: 4px; }
+.event-optional-details summary { cursor: pointer; color: var(--soft); font-size: .88rem; line-height: 1.5; }
 .repeat-card { min-width: 0; margin: 20px 0; padding: 0 16px 18px; border: 1px solid var(--panel-border); border-radius: 6px; background: rgba(4, 7, 11, .25); }
 .repeat-card legend { padding: 0 7px; color: var(--white); }
 .repeat-actions { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; }

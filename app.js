@@ -59,6 +59,7 @@ const state = {
   captionEdited: false,
 };
 let webinarStudio = null;
+let eventStudio = null;
 
 const socialFormats = {
   square: {
@@ -313,6 +314,7 @@ function formattedBooth() {
 }
 
 function suggestedCaption() {
+  if (eventStudio?.isActive()) return eventStudio.caption();
   if (webinarStudio?.isActive()) return webinarStudio.caption();
   const title = fields.title.value.trim();
   const place = titleCaseLocation(fields.location.value.trim());
@@ -526,6 +528,7 @@ function currentConcentricMaster() {
 }
 
 function ensureMasterSupported() {
+  if (eventStudio?.isActive()) return;
   if (webinarStudio?.isActive()) return;
   if (currentBackgroundMode() !== "concentric-circles" || hasMatchingConcentricMaster()) return;
   form.querySelector('input[name="background-mode"][value="generic"]').checked = true;
@@ -561,6 +564,10 @@ function drawBackground() {
 }
 
 function renderCard() {
+  if (eventStudio?.isActive()) {
+    eventStudio.render();
+    return;
+  }
   if (webinarStudio?.isActive()) {
     webinarStudio.render();
     return;
@@ -634,6 +641,7 @@ async function copyCaption() {
 }
 
 async function downloadCard() {
+  if (eventStudio?.isActive()) return eventStudio.downloadCurrent();
   if (webinarStudio?.isActive()) return webinarStudio.downloadCurrent();
   await loadCardLanguageFont().catch(() => {});
   renderCard();
@@ -759,9 +767,18 @@ async function start() {
     webinarStudio = new WebinarStudio({
       canvas, fields, getFormat: currentFormat, getLanguage: currentLanguage,
       renderCard, updateCaption, setStatus, loadFont: loadCardLanguageFont,
-      onModeChange: () => { state.captionEdited = false; updatePreviewMeta(); },
+      onModeChange: () => {
+        state.captionEdited = false;
+        updatePreviewMeta();
+        if (document.querySelector('#creative-mode').value === 'personal') ensureMasterSupported();
+      },
     });
     await webinarStudio.loadAssets();
+    eventStudio = new EventStudio({
+      canvas, fields, getFormat: currentFormat, getLanguage: currentLanguage,
+      renderCard, updateCaption, setStatus, loadFont: loadCardLanguageFont,
+      getAssets: () => webinarStudio.assets,
+    });
     toggleCustomEventTitle();
     toggleDateMode();
     toggleCardMode();
