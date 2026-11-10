@@ -12,6 +12,13 @@ An entirely browser-based pilot for personal event cards, multi-speaker event pr
 - Generates a copyable social caption, and provides the LinkedIn handoff when LinkedIn is selected.
 - Keeps all user-selected photos and event backgrounds in the current browser session. Nothing is uploaded or saved by the app.
 
+## Personal-card layout correction · November 10, 2026
+
+- Content order: event name → city → booth → date/time → profile. The same booth placement applies to multi-speaker event cards and suggested captions.
+- The event title remains visually primary; the city is smaller. All profile text shares the main left-hand grid. Names, job titles/regions and organisations wrap without horizontal text compression.
+- A smaller portrait and larger profile-name type are balanced per format. The complete profile text block is vertically centred beside the portrait. Optional blank fields consume no row or gap.
+- The supplied backgrounds and current official logo are unchanged. Oversized content shows a layout note and cannot be exported as a clipped PNG. Portrait/story formats remain available for dense content.
+
 ## Multi-speaker event mode
 
 - Choose **Multi-speaker event** in the first dropdown, then select **2 or 3 speakers** and a **Horizontal or Vertical** layout. The vertical layout follows the approved rebalanced preview, with a larger event title and the CTA alongside the final speaker row.

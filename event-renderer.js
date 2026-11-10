@@ -48,7 +48,7 @@
     const title = eventTitle(data), lines = [];
     if (title) lines.push(`Join us at ${title}${clean(data.city) ? ` in ${clean(data.city)}` : ''}.`);
     if (clean(data.cardCaption)) lines.push(clean(data.cardCaption));
-    const details = [dateRange(data, locale), timeText(data, locale), clean(data.venue), clean(data.booth) ? `Booth ${clean(data.booth)}` : ''].filter(Boolean);
+    const details = [clean(data.booth) ? `Booth ${clean(data.booth)}` : '', dateRange(data, locale), timeText(data, locale), clean(data.venue)].filter(Boolean);
     if (details.length) lines.push(details.join(' · '));
     const names = selectedSpeakers(data).map(s => clean(s.name)).filter(Boolean);
     if (names.length) lines.push(`Meet our speakers: ${names.join(', ')}.`);
@@ -116,10 +116,10 @@
     if (title) y += infoGap;
     const detailLines = [
       [clean(data.city), landscape ? 24 : vertical ? 37 : 32, 500, ink, 'City'],
+      [clean(data.booth) ? `${copy.booth} ${clean(data.booth)}` : '', landscape ? 17 : 23, 400, muted, 'Booth'],
       [dateRange(data, locale), landscape ? 20 : vertical ? 28 : 26, 500, ink, 'Dates'],
       [clean(data.venue), landscape ? 17 : vertical ? 24 : 22, 400, muted, 'Venue'],
       [timeText(data, locale), landscape ? 17 : 23, 500, ink, 'Time'],
-      [clean(data.booth) ? `${copy.booth} ${clean(data.booth)}` : '', landscape ? 17 : 23, 400, muted, 'Booth'],
     ].filter(([value]) => value);
     detailLines.forEach(([value, size, weight, color, label], i) => {
       if (i) y += landscape ? 10 : label === 'Dates' ? (vertical ? 25 : 20) : (vertical ? 17 : 14);

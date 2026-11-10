@@ -79,13 +79,15 @@
                 <input id="event-location" name="event-location" type="text" value="Delhi 2026" maxlength="26" />
               </div>
               <div>
-                <label for="event-date-mode">Event dates</label>
-                <select id="event-date-mode" name="event-date-mode">
-                  <option value="single" selected>Single day</option>
-                  <option value="range">Date range</option>
-                </select>
+                <label for="event-booth">Booth number <span class="optional">optional</span></label>
+                <input id="event-booth" name="event-booth" type="text" placeholder="e.g., 24" maxlength="16" />
               </div>
             </div>
+            <label for="event-date-mode">Event dates</label>
+            <select id="event-date-mode" name="event-date-mode">
+              <option value="single" selected>Single day</option>
+              <option value="range">Date range</option>
+            </select>
             <div id="single-date-wrap">
               <label for="event-date">Date <span class="optional">optional</span></label>
               <input id="event-date" name="event-date" type="date" value="2026-09-25" />
@@ -127,10 +129,6 @@
                   <option value="AEST">AEST</option>
                   <option value="UTC">UTC</option>
                 </select>
-              </div>
-              <div>
-                <label for="event-booth">Booth number <span class="optional">optional</span></label>
-                <input id="event-booth" name="event-booth" type="text" placeholder="e.g., 24" maxlength="16" />
               </div>
             </div>
             <p class="field-note">Add a speaking slot, time zone or booth number only if you want it shown.</p>
@@ -267,6 +265,7 @@
           <canvas id="card-canvas" width="1080" height="1080" aria-label="Generated event social card preview"></canvas>
           </div>
           <p id="preview-note" class="preview-note">Downloads as a 1080 × 1080 PNG.</p>
+          <div id="personal-layout-feedback" class="layout-feedback has-errors is-hidden" role="status" aria-live="polite"></div>
           <p id="webinar-layout-summary" class="field-note is-hidden"></p>
           <div id="webinar-layout-feedback" class="layout-feedback is-hidden" role="status" aria-live="polite"></div>
         </section>
@@ -275,8 +274,9 @@
 
     <script src="webinar-renderer.js?v=webinars-20261019"></script>
     <script src="webinar-studio.js?v=events-20261019"></script>
-    <script src="event-renderer.js?v=events-20261019"></script>
+    <script src="event-renderer.js?v=personal-layout-20261110"></script>
     <script src="event-studio.js?v=events-20261019"></script>
-    <script src="app.js?v=events-20261019"></script>
+    <script src="personal-renderer.js?v=personal-layout-20261110"></script>
+    <script src="app.js?v=personal-layout-20261110"></script>
   </body>
 </html>
