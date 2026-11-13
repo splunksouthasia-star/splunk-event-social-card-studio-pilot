@@ -5,7 +5,120 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (R) {
   'use strict';
   const clean = value => String(value || '').trim();
-  function layout({ ctx, width, height, data, language = {} }) {
+  function formatLocation(city, venue) {
+    const c = clean(city), v = clean(venue);
+    if (!v) return c;
+    if (!c) return v;
+    const normal = text => text.normalize('NFKC').toLocaleLowerCase();
+    const nv = normal(v), nc = normal(c);
+    // Preserve the full venue name when it already includes the city at the end.
+    if (nv === nc || nv.endsWith(` ${nc}`) || nv.endsWith(`,${nc}`)) return v;
+    return `${v}, ${c}`;
+  }
+  function bannerLayout({ ctx, width, height, data, assets = {}, language = {} }) {
+    const H = height / width * 1080, landscape = H < 700, story = H > 1600, portrait = H > 1200;
+    const margin = landscape ? 60 : 81, usable = 1080 - 2 * margin;
+    const family = language.fontFamily || 'Inter, Arial, sans-serif', locale = language.locale || 'en';
+    const lineFactor = /^th/.test(locale) ? 1.35 : /^(ko|zh|ja)/.test(locale) ? 1.24 : 1.14;
+    const values = { location: formatLocation(data.location, data.venue), booth: clean(data.booth), date: clean(data.date), time: clean(data.time), supporting: clean(data.cardCaption) };
+    const base = landscape
+      ? { top: 104, intro: 42, single: 68, double: 52, location: 32, city: 36, booth: 27, date: 24, time: 23, support: 23, introGap: 18, metaGap: 24, rowGap: 9, supportGap: 24, logoW: 150, logoH: 42, logoGap: 24, bottom: 34 }
+      : story
+        ? { top: 260, intro: 96, single: 132, double: 108, location: 58, city: 66, booth: 48, date: 44, time: 42, support: 40, introGap: 36, metaGap: 56, rowGap: 22, supportGap: 78, logoW: 240, logoH: 76, logoGap: 50, bottom: 160 }
+        : portrait
+          ? { top: 210, intro: 86, single: 120, double: 96, location: 52, city: 58, booth: 44, date: 40, time: 38, support: 36, introGap: 32, metaGap: 48, rowGap: 18, supportGap: 64, logoW: 210, logoH: 62, logoGap: 44, bottom: 90 }
+          : { top: 184, intro: 78, single: 112, double: 88, location: 46, city: 52, booth: 38, date: 36, time: 34, support: 32, introGap: 28, metaGap: 40, rowGap: 14, supportGap: 54, logoW: 190, logoH: 54, logoGap: 40, bottom: 72 };
+    function attempt(scale) {
+      const blocks = [], errors = [];
+      const size = n => Math.round(n * scale);
+      const font = (s, weight) => { ctx.font = `${weight} ${s}px ${family}`; };
+      const gap = n => n * scale;
+      let y = base.top, eventLogo = null;
+      function measure(id, value, preferred, weight, maxLines, min) {
+        const text = clean(value);
+        if (!text) return null;
+        let s = size(preferred), lines;
+        const limit = Math.min(s, size(min ?? preferred));
+        do {
+          font(s, weight); lines = R.wrap(ctx, text, usable, locale);
+          if (lines.length <= maxLines || s <= limit) break;
+          s--;
+        } while (true);
+        if (lines.length > maxLines) errors.push(`${id} is too long for this format. Shorten it or choose portrait / story.`);
+        return { id, text, lines, x: margin, y: 0, width: usable, font: s, weight, lineHeight: s * lineFactor, height: lines.length * s * lineFactor };
+      }
+      function place(block, before = 0) {
+        if (!block) return;
+        if (blocks.length) y += gap(before);
+        block.y = y; blocks.push(block); y += block.height;
+      }
+      if (assets.eventLogo) {
+        const ratio = Math.min(size(base.logoW) / assets.eventLogo.width, size(base.logoH) / assets.eventLogo.height);
+        const w = assets.eventLogo.width * ratio, h = assets.eventLogo.height * ratio;
+        eventLogo = { x: margin, y: y + (size(base.logoH) - h) / 2, width: w, height: h };
+        y += size(base.logoH) + gap(base.logoGap);
+      }
+      place(measure('Card message', data.eyebrow, base.intro, 400, 2, base.intro * .84));
+      const titleText = clean(data.title);
+      if (titleText) {
+        const maxSingle = size(base.single), maxDouble = size(base.double);
+        font(maxSingle, 600);
+        const fittedSingle = Math.min(maxSingle, Math.floor(usable / Math.max(1, ctx.measureText(titleText).width) * maxSingle));
+        let s, lines;
+        if (!titleText.includes('\n') && fittedSingle >= maxDouble + size(6)) {
+          s = fittedSingle; lines = [titleText];
+        } else {
+          const words = titleText.split(/\s+/);
+          for (s = maxDouble; s >= Math.round(maxDouble * .78); s--) {
+            font(s, 600);
+            const candidates = [];
+            for (let i = 1; i < words.length; i++) {
+              const pair = [words.slice(0, i).join(' '), words.slice(i).join(' ')];
+              const lengths = pair.map(line => ctx.measureText(line).width);
+              if (Math.max(...lengths) <= usable) candidates.push({ pair, score: Math.abs(lengths[0] - lengths[1]) });
+            }
+            if (candidates.length) { lines = candidates.sort((a, b) => a.score - b.score)[0].pair; break; }
+            lines = R.wrap(ctx, titleText, usable, locale);
+            // Keep named terms such as Symposium/Xpo intact before accepting
+            // a larger but awkward break at punctuation. CJK still wraps by word.
+            if ((words.length === 1 && lines.length <= 2) || s === Math.round(maxDouble * .78)) break;
+          }
+        }
+        if (lines.length > 2) errors.push('The event name needs more than two lines. Shorten it or choose portrait / story.');
+        place({ id: 'Event name', text: titleText, lines, x: margin, y: 0, width: usable, font: s, weight: 600, lineHeight: s * lineFactor, height: lines.length * s * lineFactor, gradient: true }, base.introGap);
+      }
+      const identityBottom = y;
+      const locationSize = clean(data.venue) ? base.location : base.city;
+      let first = true;
+      const rows = [
+        measure('Event city', values.location, locationSize, 600, 1, landscape ? 27 : 34),
+        measure('Booth number', values.booth, base.booth, 500, 2, base.booth * .85),
+        measure('Event dates', values.date, base.date, 400, 2, base.date * .86),
+        measure('Event time', values.time, base.time, 400, 2, base.time * .86),
+      ];
+      rows.filter(Boolean).forEach(row => { place(row, first ? base.metaGap : base.rowGap); first = false; });
+      const detailsBottom = y;
+      place(measure('Supporting line', values.supporting, base.support, 400, 3, base.support * .9), base.supportGap);
+      const contentBottom = y, minTop = landscape ? 96 : story ? 230 : portrait ? 180 : 160;
+      const overflow = Math.max(0, contentBottom - (H - base.bottom));
+      const shift = Math.min(overflow, base.top - minTop);
+      if (shift) {
+        blocks.forEach(b => { b.y -= shift; });
+        if (eventLogo) eventLogo.y -= shift;
+      }
+      if (contentBottom - shift > H - base.bottom + .5) errors.push('These event details need more space. Shorten optional text or choose portrait / story before downloading.');
+      return { width, height, H, margin, blocks, eventLogo, photo: null, profile: null, identityBottom: identityBottom - shift, detailsBottom: detailsBottom - shift, errors: [...new Set(errors)], landscape, story };
+    }
+    let result = attempt(1);
+    if (result.errors.length) for (const scale of [.94, .88, .82]) {
+      const next = attempt(scale);
+      result = next;
+      if (!result.errors.length) break;
+    }
+    return result;
+  }
+  function layout({ ctx, width, height, data, assets = {}, language = {} }) {
+    if (data.intent === 'banner') return bannerLayout({ ctx, width, height, data, assets, language });
     const H = height / width * 1080, landscape = H < 700, story = H > 1600;
     const margin = landscape ? 60 : 72, right = 1080 - margin;
     const locale = language.locale || 'en', family = language.fontFamily || 'Inter, Arial, sans-serif';
@@ -31,7 +144,7 @@
     if (eyebrow) { add(eyebrow, margin, y); y += eyebrow.height + (landscape ? 16 : 28); }
     const title = measure('Event name', data.title, right - margin, landscape ? 54 : story ? 80 : 76, 600, 2, landscape ? 43 : 62);
     if (title) { add(title, margin, y); title.gradient = true; y += title.height + rowGap; }
-    const city = measure('Event city', data.location, right - margin, landscape ? 34 : 48, 600, 2, landscape ? 30 : 42);
+    const city = measure('Event city', formatLocation(data.location, data.venue), right - margin, clean(data.venue) ? landscape ? 31 : 44 : landscape ? 34 : 48, 600, 2, landscape ? 28 : 36);
     if (city) { add(city, margin, y); y += city.height; }
     const identityBottom = y;
     const photoSize = banner ? 0 : landscape ? 230 : story ? 440 : H > 1200 ? 400 : 360;
@@ -95,7 +208,7 @@
   function render({ ctx, width, height, data, assets = {}, language = {} }) {
     ctx.save();
     ctx.setTransform(width / 1080, 0, 0, width / 1080, 0, 0);
-    const geometry = layout({ ctx, width, height, data, language });
+    const geometry = layout({ ctx, width, height, data, assets, language });
     const { H, blocks, photo, landscape, story } = geometry;
     const family = language.fontFamily || 'Inter, Arial, sans-serif';
     ctx.fillStyle = '#0B1118'; ctx.fillRect(0, 0, 1080, H);
@@ -109,6 +222,10 @@
       const lw = landscape ? 166 : 204, lh = lw * assets.logo.height / assets.logo.width;
       ctx.drawImage(assets.logo, 1080 - geometry.margin - lw, story ? 100 : landscape ? 24 : 56, lw, lh);
     } else geometry.errors.push('The brand logo is not ready. Refresh before downloading.');
+    if (assets.eventLogo && geometry.eventLogo) {
+      const box = geometry.eventLogo;
+      ctx.drawImage(assets.eventLogo, box.x, box.y, box.width, box.height);
+    }
     blocks.forEach(b => {
       ctx.font = `${b.weight} ${b.font}px ${family}`; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
       if (b.gradient) {
@@ -140,5 +257,5 @@
     ctx.restore();
     return geometry;
   }
-  return { layout, render };
+  return { layout, render, formatLocation };
 });

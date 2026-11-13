@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=events-20261019" />
+    <link rel="stylesheet" href="styles.css?v=event-shoutout-20261113" />
   </head>
   <body>
     <header class="site-header">
@@ -22,7 +22,7 @@
       <section class="intro">
         <p class="eyebrow">Self-service event creative</p>
         <h1>Make your event card.</h1>
-        <p class="intro-copy">Create a personal event card, a multi-speaker event promotion, or a webinar series.</p>
+        <p class="intro-copy">Create a personal card, an event shout-out, a multi-speaker event promotion, or a webinar series.</p>
       </section>
 
       <section class="studio" aria-label="Event social card generator">
@@ -31,7 +31,7 @@
             <div class="section-heading"><h2>Start here</h2></div>
             <label for="creative-mode">What are you creating?</label>
             <select id="creative-mode">
-              <option value="personal">Personal event card</option>
+              <option value="personal">Personal card / event shout-out</option>
               <option value="multi-event">Multi-speaker event — 2 or 3 speakers</option>
               <option value="webinar">Webinar</option>
               <option value="series">Webinar series — up to 3 sessions</option>
@@ -70,19 +70,22 @@
             <p class="field-note">Choose a Splunk event format, or select Custom event name to enter your own.</p>
             <div id="custom-event-title-wrap" class="is-hidden">
               <label for="event-title">Custom event name</label>
-              <input id="event-title" name="event-title" type="text" placeholder="e.g., Splunk Experience Day" maxlength="48" />
+              <input id="event-title" name="event-title" type="text" placeholder="e.g., Splunk Experience Day" maxlength="100" />
             </div>
 
             <div class="two-column">
               <div>
-                <label for="event-location">City and year</label>
-                <input id="event-location" name="event-location" type="text" value="Delhi 2026" maxlength="26" />
+                <label for="event-venue">Venue <span class="optional">optional</span></label>
+                <input id="event-venue" name="event-venue" type="text" placeholder="e.g., Grand Hyatt" maxlength="80" />
               </div>
               <div>
-                <label for="event-booth">Booth number <span class="optional">optional</span></label>
-                <input id="event-booth" name="event-booth" type="text" placeholder="e.g., 24" maxlength="16" />
+                <label for="event-location">City <span class="optional">optional</span></label>
+                <input id="event-location" name="event-location" type="text" value="Delhi 2026" placeholder="e.g., Kochi" maxlength="60" />
               </div>
             </div>
+            <p class="field-note">Venue appears before city on one location line. Leave venue blank to show just the city.</p>
+            <label for="event-booth">Booth number <span class="optional">optional</span></label>
+            <input id="event-booth" name="event-booth" type="text" placeholder="e.g., 24" maxlength="16" />
             <label for="event-date-mode">Event dates</label>
             <select id="event-date-mode" name="event-date-mode">
               <option value="single" selected>Single day</option>
@@ -200,6 +203,16 @@
             </select>
             <p class="field-note">Choose a profile message, or select Event shout-out for an event-led card without a headshot.</p>
 
+            <div id="event-shoutout-fields" class="is-hidden">
+              <label for="event-logo-upload">Event logo <span class="optional">optional</span></label>
+              <input id="event-logo-upload" name="event-logo-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+              <p class="field-note">Use a logo that is clear on a dark background. A transparent PNG is recommended. PNG, JPEG or WebP, up to 10 MB.</p>
+              <button id="remove-event-logo" class="text-button is-hidden" type="button">Remove event logo</button>
+              <label for="event-card-caption">Supporting line on the card <span class="optional">optional</span></label>
+              <textarea id="event-card-caption" name="event-card-caption" rows="2" maxlength="110" placeholder="e.g., Meet our security and observability experts."></textarea>
+              <p class="field-note">Add a short reason to visit. You can use line breaks. Leave it blank to hide it.</p>
+            </div>
+
             <div id="profile-card-fields">
               <label for="person-name">Your name</label>
               <input id="person-name" name="person-name" type="text" placeholder="e.g., Amol Gaikwad" maxlength="32" />
@@ -276,7 +289,7 @@
     <script src="webinar-studio.js?v=events-20261019"></script>
     <script src="event-renderer.js?v=personal-layout-20261110"></script>
     <script src="event-studio.js?v=events-20261019"></script>
-    <script src="personal-renderer.js?v=personal-layout-20261110"></script>
-    <script src="app.js?v=personal-layout-20261110"></script>
+    <script src="personal-renderer.js?v=event-shoutout-20261113"></script>
+    <script src="app.js?v=event-shoutout-20261113"></script>
   </body>
 </html>

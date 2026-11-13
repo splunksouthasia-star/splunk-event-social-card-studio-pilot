@@ -7,6 +7,9 @@ const fields = {
   eventPreset: document.querySelector("#event-preset"),
   title: document.querySelector("#event-title"),
   location: document.querySelector("#event-location"),
+  venue: document.querySelector("#event-venue"),
+  eventLogo: document.querySelector("#event-logo-upload"),
+  cardCaption: document.querySelector("#event-card-caption"),
   dateMode: document.querySelector("#event-date-mode"),
   date: document.querySelector("#event-date"),
   startDate: document.querySelector("#event-start-date"),
@@ -39,6 +42,8 @@ const singleDateWrap = document.querySelector("#single-date-wrap");
 const dateRangeWrap = document.querySelector("#date-range-wrap");
 const thirdPartyNote = document.querySelector("#third-party-note");
 const profileCardFields = document.querySelector("#profile-card-fields");
+const eventShoutoutFields = document.querySelector("#event-shoutout-fields");
+const removeEventLogoButton = document.querySelector("#remove-event-logo");
 const photoControls = document.querySelector("#photo-controls");
 const photoCropNote = document.querySelector("#photo-crop-note");
 const actionStatus = document.querySelector("#action-status");
@@ -53,6 +58,7 @@ const state = {
   customBackground: null,
   logo: null,
   photo: null,
+  eventLogo: null,
   photoZoom: 1,
   photoHorizontal: 0,
   photoVertical: 0,
@@ -61,6 +67,7 @@ const state = {
 let webinarStudio = null;
 let eventStudio = null;
 let personalLayoutResult = null;
+let eventLogoRequest = 0;
 
 const socialFormats = {
   square: { label: "Square post — 1080 × 1080", width: 1080, height: 1080 },
@@ -251,7 +258,8 @@ function suggestedCaption() {
   if (eventStudio?.isActive()) return eventStudio.caption();
   if (webinarStudio?.isActive()) return webinarStudio.caption();
   const title = fields.title.value.trim();
-  const place = titleCaseLocation(fields.location.value.trim());
+  const city = titleCaseLocation(fields.location.value.trim());
+  const venue = fields.venue.value.trim();
   const date = formattedDate();
   const time = formattedTime();
   const booth = formattedBooth();
@@ -259,11 +267,13 @@ function suggestedCaption() {
   const lines = [];
   if (title) {
     const lead = fields.intent.value === "banner" ? "Join us at" : captionLead(fields.intent.value);
-    lines.push(`${lead} ${title}${place ? ` in ${place}` : ""}.`);
+    const place = PersonalRenderer.formatLocation(city, venue);
+    lines.push(`${lead} ${title}${place ? ` ${venue ? 'at' : 'in'} ${place}` : ""}.`);
   }
   if (booth) lines.push(`Meet us at ${booth}.`);
   if (date) lines.push(fields.intent.value === "banner" ? `Save the date: ${date}.` : `Join me on ${date}.`);
   if (time) lines.push(`Time: ${time}.`);
+  if (fields.intent.value === 'banner' && fields.cardCaption.value.trim()) lines.push(fields.cardCaption.value.trim());
   if (link) lines.push(`Register here: ${link}`);
   lines.push("#Splunk #Cisco");
   return lines.join("\n\n");
@@ -319,14 +329,15 @@ function renderCard() {
     ctx, width, height, language: currentLanguage(),
     data: {
       intent: fields.intent.value, eyebrow: intentCopy(fields.intent.value),
-      title: fields.title.value.trim(), location: fields.location.value.trim(),
+      title: fields.title.value.trim(), location: fields.location.value.trim(), venue: fields.venue.value.trim(),
+      cardCaption: fields.cardCaption.value.trim(),
       booth: formattedBooth(), date: formattedDate(), time: formattedTime(),
       name: fields.name.value.trim(), role: fields.role.value.trim(),
       region: fields.region.value.trim(), organisation: fields.organisation.value.trim(),
       zoom: state.photoZoom, photoX: state.photoHorizontal, photoY: state.photoVertical,
       overlay: mode === 'upload' && fields.overlay.checked,
     },
-    assets: { background, logo: state.logo, photo: state.photo },
+    assets: { background, logo: state.logo, photo: state.photo, eventLogo: state.eventLogo },
   });
   if (fields.dateMode.value === 'range' && fields.startDate.value && fields.endDate.value && fields.endDate.value < fields.startDate.value) {
     personalLayoutResult.errors.push('The end date must be on or after the start date.');
@@ -368,6 +379,47 @@ async function handleImageUpload(input, target) {
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+async function handleEventLogoUpload() {
+  const [file] = fields.eventLogo.files;
+  if (!file) return;
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+    setStatus('Choose a PNG, JPEG or WebP logo no larger than 10 MB.');
+    fields.eventLogo.value = '';
+    return;
+  }
+  const request = ++eventLogoRequest, url = URL.createObjectURL(file);
+  try {
+    const image = await loadImage(url);
+    const scale = Math.min(1, 1600 / Math.max(image.width, image.height));
+    const source = document.createElement('canvas');
+    source.width = Math.max(1, Math.round(image.width * scale));
+    source.height = Math.max(1, Math.round(image.height * scale));
+    const sourceContext = source.getContext('2d');
+    sourceContext.drawImage(image, 0, 0, source.width, source.height);
+    const pixels = sourceContext.getImageData(0, 0, source.width, source.height).data;
+    let left = source.width, top = source.height, right = -1, bottom = -1;
+    for (let y = 0; y < source.height; y++) for (let x = 0; x < source.width; x++) {
+      if (pixels[(y * source.width + x) * 4 + 3]) {
+        left = Math.min(left, x); right = Math.max(right, x);
+        top = Math.min(top, y); bottom = Math.max(bottom, y);
+      }
+    }
+    if (right < left) throw new Error('Empty image');
+    const logo = document.createElement('canvas');
+    logo.width = right - left + 1; logo.height = bottom - top + 1;
+    logo.getContext('2d').drawImage(source, left, top, logo.width, logo.height, 0, 0, logo.width, logo.height);
+    if (request !== eventLogoRequest) return;
+    state.eventLogo = logo;
+    removeEventLogoButton.classList.remove('is-hidden');
+    setStatus('Event logo ready. Its proportions are preserved.');
+    renderCard();
+  } catch {
+    if (request !== eventLogoRequest) return;
+    fields.eventLogo.value = '';
+    setStatus('That logo could not be opened. Please choose another image.');
+  } finally { URL.revokeObjectURL(url); }
 }
 
 async function copyCaption() {
@@ -428,6 +480,7 @@ function toggleDateMode() {
 function toggleCardMode() {
   const isBanner = fields.intent.value === "banner";
   profileCardFields.classList.toggle("is-hidden", isBanner);
+  eventShoutoutFields.classList.toggle("is-hidden", !isBanner);
   updateCaption();
   renderCard();
 }
@@ -483,10 +536,19 @@ function bindEvents() {
       photoControls.classList.remove("is-hidden");
     }
     if (event.target === fields.background) handleImageUpload(fields.background, "customBackground");
+    if (event.target === fields.eventLogo) handleEventLogoUpload();
     if (event.target === fields.overlay) renderCard();
   });
 
   document.querySelector("#download-card").addEventListener("click", downloadCard);
+  removeEventLogoButton.addEventListener('click', () => {
+    eventLogoRequest++;
+    state.eventLogo = null;
+    fields.eventLogo.value = '';
+    removeEventLogoButton.classList.add('is-hidden');
+    renderCard();
+    setStatus('Event logo removed.');
+  });
   document.querySelector("#copy-caption").addEventListener("click", copyCaption);
   document.querySelector("#open-linkedin").addEventListener("click", async () => {
     await copyCaption();

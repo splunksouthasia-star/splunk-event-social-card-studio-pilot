@@ -12,6 +12,14 @@ An entirely browser-based pilot for personal event cards, multi-speaker event pr
 - Generates a copyable social caption, and provides the LinkedIn handoff when LinkedIn is selected.
 - Keeps all user-selected photos and event backgrounds in the current browser session. Nothing is uploaded or saved by the app.
 
+## Event shout-out refresh · November 13, 2026
+
+- Choose **Personal card / event shout-out**, then **Card message → Event shout-out** for the approved event-only composition. Short event names have larger headline type; longer names wrap to two balanced lines. The invitation, event details and optional supporting line form distinct groups.
+- Optional venue and city form one location line, with venue first. City-only text is larger; a city already at the end of the venue name is not repeated. Booth, dates and time each have their own row. Venue is also available on personal speaker/attendee cards.
+- Add an optional event logo (PNG, JPEG or WebP, up to 10 MB). The complete uploaded image retains its proportions, with transparent export padding cropped. Removing it also removes its reserved space. Use a logo suited to a dark background; no placeholder logo is exported.
+- The supporting line is optional and editable, including manual line breaks. It is separate from the social-post caption. Clearing any optional text removes its row and spacing.
+- Square, landscape, portrait and story formats use the same content order with format-specific proportions. Readability and overflow checks apply equally to the preview and PNG. Existing multi-speaker and webinar forms continue to use their own renderers.
+
 ## Personal-card layout correction · November 10, 2026
 
 - Content order: event name → city → booth → date/time → profile. The same booth placement applies to multi-speaker event cards and suggested captions.
